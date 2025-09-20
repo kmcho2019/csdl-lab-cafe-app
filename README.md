@@ -160,6 +160,7 @@ See `SECURITY.md` for details.
 
 Common dockerised workflows:
 - Run linting: `docker compose run --rm web npm run lint`
+- Run unit tests: `docker compose run --rm web npm run test`
 - Open Prisma Studio: `docker compose run --rm --service-ports web npx prisma studio`
 - Tail logs: `docker compose logs -f web`
 
@@ -171,6 +172,7 @@ Common dockerised workflows:
 5. `npm run prisma:migrate` (or `npx prisma db push` during prototyping)
 6. (optional) `npx prisma db seed`
 7. `npm run dev` and open http://localhost:3000
+8. `npm run test` (and `npm run lint`) keep the project healthy
 
 The app boots with:
 - **App router** Next.js 14 + React Server Components.
