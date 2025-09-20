@@ -1,36 +1,40 @@
-version: "3.9"
+# docker-compose.yml
+
+version: '3.8'
+
 services:
-  db:
-    image: postgres:15
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: lab_cafe
-    ports:
-      - "5432:5432"
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: >-
+      sh -c "npm install && npm run dev -- --hostname 0.0.0.0"
     volumes:
-      - db_data:/var/lib/postgresql/data
-
-  mailhog:
-    image: mailhog/mailhog
-    restart: unless-stopped
+      - .:/app
+      - web_node_modules:/app/node_modules
     ports:
-      - "1025:1025" # smtp
-      - "8025:8025" # ui
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:postgres@db:5432/lab_cafe}
+    depends_on:
+      - db
 
-  # web:
-  #   build: .
-  #   depends_on:
-  #     - db
-  #   environment:
-  #     DATABASE_URL: postgresql://postgres:postgres@db:5432/lab_cafe
-  #     NEXTAUTH_URL: http://localhost:3000
-  #     NEXTAUTH_SECRET: change-me
-  #     GITHUB_ID: change-me
-  #     GITHUB_SECRET: change-me
-  #   ports:
-  #     - "3000:3000"
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=lab_cafe
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
 volumes:
-  db_data:
+  postgres_data:
+  web_node_modules:

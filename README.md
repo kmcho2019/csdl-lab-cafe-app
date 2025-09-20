@@ -142,14 +142,35 @@ See `SECURITY.md` for details.
 - Docker (for local Postgres) or access to a Postgres DB
 - GitHub OAuth app (client id/secret)
 
-### Local (Docker or direct Postgres)
-1. `cp .env.example .env`
-2. Provision a Postgres instance (`docker compose up -d db` or use cloud Postgres).
-3. `npm install`
-4. `npm run prisma:migrate` (creates migrations + schema)
-5. `npm run prisma:generate`
+### Local development
+
+#### Option A – Docker Compose (everything in containers)
+1. Install Docker Desktop or Docker Engine + Compose plugin.
+2. Copy env defaults: `cp .env.example .env`.
+3. Edit `.env` and set:
+   - `DATABASE_URL=postgresql://postgres:postgres@db:5432/lab_cafe`
+   - `NEXTAUTH_SECRET` to a random 32+ char string.
+   - `GITHUB_ID` / `GITHUB_SECRET` once your OAuth app is ready.
+4. Start Postgres: `docker compose up -d db` (wait for "healthy" status).
+5. Install dependencies in the web container: `docker compose run --rm web npm install`.
+6. Apply the Prisma schema: `docker compose run --rm web npx prisma db push`.
+7. Seed demo data (optional): `docker compose run --rm web npx prisma db seed`.
+8. Launch the app: `docker compose up web` (or `docker compose up` for both services). Visit http://localhost:3000.
+9. Stop containers with `docker compose down` when finished.
+
+Common dockerised workflows:
+- Run linting: `docker compose run --rm web npm run lint`
+- Open Prisma Studio: `docker compose run --rm --service-ports web npx prisma studio`
+- Tail logs: `docker compose logs -f web`
+
+#### Option B – Local Node.js with Docker Postgres
+1. Install Node.js 18+ and Docker.
+2. `cp .env.example .env` and set `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/lab_cafe`.
+3. Start Postgres: `docker compose up -d db`.
+4. `npm install`
+5. `npm run prisma:migrate` (or `npx prisma db push` during prototyping)
 6. (optional) `npx prisma db seed`
-7. `npm run dev` → http://localhost:3000
+7. `npm run dev` and open http://localhost:3000
 
 The app boots with:
 - **App router** Next.js 14 + React Server Components.
