@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900;
+  font-feature-settings: "liga" 1, "calt" 1;
+}
+
+main {
+  @apply min-h-screen;
+}
+
+button:focus-visible,
+a:focus-visible {
+  @apply outline outline-2 outline-offset-2 outline-brand;
+}

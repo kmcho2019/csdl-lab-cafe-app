@@ -1,0 +1,298 @@
+// Prisma schema aligned with Lab Cafe Hub data model
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  MEMBER
+  ADMIN
+}
+
+enum StockMovementType {
+  RESTOCK
+  CONSUME
+  WRITE_OFF
+  ADJUST
+}
+
+enum SettlementStatus {
+  DRAFT
+  FINALIZED
+  VOID
+}
+
+enum LedgerCategory {
+  PURCHASE
+  RECEIPT
+  ADJUSTMENT
+  WRITE_OFF
+  OTHER
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  ORDERED
+  RECEIVED
+  CANCELLED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String?
+  email        String   @unique
+  githubId     String?  @unique
+  emailVerified DateTime?
+  role         Role     @default(MEMBER)
+  isActive     Boolean  @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  consumptions     Consumption[]
+  stockMoves       StockMovement[] @relation("StockMoveBy")
+  settlements      Settlement[]    @relation("SettlementBy")
+  settlementLines  SettlementLine[]
+  ledgerEntries    LedgerEntry[]
+  payments         Payment[]
+  purchaseOrders   PurchaseOrder[]
+  auditLogs        AuditLog[]      @relation("AuditBy")
+  accounts         Account[]
+  sessions         Session[]
+}
+
+model AllowlistEntry {
+  id        String   @id @default(cuid())
+  value     String
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([value])
+}
+
+model Item {
+  id                String   @id @default(cuid())
+  name              String
+  sku               String?  @unique
+  barcode           String?  @unique
+  category          String?
+  unit              String?
+  priceCents        Int
+  currency          String   @default("USD")
+  currentStock      Int      @default(0)
+  lowStockThreshold Int      @default(0)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  priceHistory      ItemPriceHistory[]
+  consumptions      Consumption[]
+  stockMovements    StockMovement[]
+  orderItems        PurchaseOrderItem[]
+}
+
+model ItemPriceHistory {
+  id         String   @id @default(cuid())
+  item       Item     @relation(fields: [itemId], references: [id])
+  itemId     String
+  priceCents Int
+  currency   String   @default("USD")
+  startsAt   DateTime @default(now())
+  endsAt     DateTime?
+}
+
+model StockMovement {
+  id                  String            @id @default(cuid())
+  item                Item              @relation(fields: [itemId], references: [id])
+  itemId              String
+  type                StockMovementType
+  quantity            Int
+  unitCostCents       Int?
+  note                String?
+  byUser              User?             @relation("StockMoveBy", fields: [byUserId], references: [id])
+  byUserId            String?
+  relatedPO           PurchaseOrder?    @relation(fields: [relatedPOId], references: [id])
+  relatedPOId         String?
+  relatedSettlement   Settlement?       @relation(fields: [relatedSettlementId], references: [id])
+  relatedSettlementId String?
+  createdAt           DateTime          @default(now())
+
+  @@index([itemId, createdAt])
+}
+
+model Consumption {
+  id              String     @id @default(cuid())
+  user            User       @relation(fields: [userId], references: [id])
+  userId          String
+  item            Item       @relation(fields: [itemId], references: [id])
+  itemId          String
+  quantity        Int        @default(1)
+  priceAtTxCents  Int
+  currency        String     @default("USD")
+  createdAt       DateTime   @default(now())
+  settlement      Settlement? @relation(fields: [settlementId], references: [id])
+  settlementId    String?
+  reversedAt      DateTime?
+
+  @@index([userId, createdAt])
+  @@index([settlementId])
+}
+
+model Settlement {
+  id            String            @id @default(cuid())
+  number        Int               @default(autoincrement())
+  startDate     DateTime
+  endDate       DateTime
+  status        SettlementStatus  @default(DRAFT)
+  notes         String?
+  createdBy     User?             @relation("SettlementBy", fields: [createdById], references: [id])
+  createdById   String?
+  finalizedAt   DateTime?
+  createdAt     DateTime          @default(now())
+
+  lines         SettlementLine[]
+  consumptions  Consumption[]
+  ledgerEntries LedgerEntry[]
+  stockMoves    StockMovement[]
+  payments      Payment[]
+
+  @@index([status, startDate, endDate])
+}
+
+model SettlementLine {
+  id            String      @id @default(cuid())
+  settlement    Settlement  @relation(fields: [settlementId], references: [id])
+  settlementId  String
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String
+  itemCount     Int
+  totalCents    Int
+  breakdownJson Json
+}
+
+model LedgerEntry {
+  id                 String        @id @default(cuid())
+  timestamp          DateTime      @default(now())
+  description        String
+  amountCents        Int
+  category           LedgerCategory
+  settlement         Settlement?   @relation(fields: [settlementId], references: [id])
+  settlementId       String?
+  user               User?         @relation(fields: [userId], references: [id])
+  userId             String?
+  purchaseOrder      PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
+  purchaseOrderId    String?
+  balanceAfterCents  Int?
+}
+
+model Payment {
+  id            String     @id @default(cuid())
+  user          User       @relation(fields: [userId], references: [id])
+  userId        String
+  settlement    Settlement @relation(fields: [settlementId], references: [id])
+  settlementId  String
+  amountCents   Int
+  method        String
+  reference     String?
+  receivedAt    DateTime   @default(now())
+  createdAt     DateTime   @default(now())
+}
+
+model PurchaseOrder {
+  id             String              @id @default(cuid())
+  vendorName     String
+  status         PurchaseOrderStatus @default(DRAFT)
+  orderedAt      DateTime?
+  receivedAt     DateTime?
+  totalCostCents Int?
+  notes          String?
+  createdBy      User?               @relation(fields: [createdById], references: [id])
+  createdById    String?
+  createdAt      DateTime            @default(now())
+
+  items          PurchaseOrderItem[]
+  ledgerEntries  LedgerEntry[]
+  stockMoves     StockMovement[]
+}
+
+model PurchaseOrderItem {
+  id              String        @id @default(cuid())
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+  purchaseOrderId String
+  item            Item          @relation(fields: [itemId], references: [id])
+  itemId          String
+  quantity        Int
+  unitCostCents   Int
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  channel   String
+  to        String
+  subject   String?
+  body      String?
+  status    String
+  error     String?
+  sentAt    DateTime?
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actor     User?    @relation("AuditBy", fields: [actorId], references: [id])
+  actorId   String?
+  action    String
+  entity    String
+  entityId  String?
+  diff      Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+}
+
+model AppSetting {
+  id              Int      @id @default(1)
+  allowedDomains  String[] @default([])
+  currency        String   @default("USD")
+  lowStockDefault Int      @default(0)
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String? @db.Text
+  session_state      String?
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  expires      DateTime
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}

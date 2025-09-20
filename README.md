@@ -48,6 +48,14 @@ A lightweight web app to manage a lab's snack/drink cafe: track inventory, recor
 - **Deploy:** Vercel (serverless) *or* Docker Compose (web + Postgres).  
 - **Background jobs:** Vercel Cron (or container cron) for low‑stock checks and email notices.
 
+### Repo layout
+
+- `src/app` — Next.js routes (`/` marketing, `/app` authenticated workspace, `/api` handlers).
+- `src/components` — Shared UI including inventory manager and item grid.
+- `src/server` — Auth guards, NextAuth options, Prisma client.
+- `prisma/` — Schema + seed script.
+- `docker-compose.yml` — (optional) Postgres for local dev.
+
 ### High-Level Flow
 ```
 Browser ──(OAuth via GitHub)──> Next.js ── Prisma ──> Postgres
@@ -133,13 +141,20 @@ See `SECURITY.md` for details.
 - Docker (for local Postgres) or access to a Postgres DB
 - GitHub OAuth app (client id/secret)
 
-### Local (Docker)
+### Local (Docker or direct Postgres)
 1. `cp .env.example .env`
-2. `docker compose up -d db`
+2. Provision a Postgres instance (`docker compose up -d db` or use cloud Postgres).
 3. `npm install`
-4. `npx prisma migrate dev`
-5. (optional) `npm run seed`
-6. `npm run dev` and open http://localhost:3000
+4. `npm run prisma:migrate` (creates migrations + schema)
+5. `npm run prisma:generate`
+6. (optional) `npx prisma db seed`
+7. `npm run dev` → http://localhost:3000
+
+The app boots with:
+- **App router** Next.js 14 + React Server Components.
+- **Auth.js (NextAuth)** backed by Prisma adapter and GitHub OAuth.
+- **Prisma Client** with the schema in `prisma/schema.prisma`.
+- **React Query** on the client for optimistic actions (e.g., “Take one”).
 
 ### Deploy to Vercel
 1. Create project and add environment variables from `.env.example`.
@@ -185,4 +200,3 @@ Key environment variables (see `.env.example` for all):
 - **Credit**: money **in** (e.g., member settlement payment).
 - **PriceAtTx**: immutable price captured when a member took the item.
 - **Write‑off**: inventory reduction not tied to consumption (expiry/loss).
-
