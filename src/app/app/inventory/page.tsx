@@ -2,6 +2,7 @@ import { Role } from "@prisma/client";
 import { redirect } from "next/navigation";
 
 import { InventoryManager } from "@/components/inventory/inventory-manager";
+import { env } from "@/lib/env";
 import { getAuthSession } from "@/server/auth/session";
 import { prisma } from "@/server/db/client";
 
@@ -32,6 +33,7 @@ export default async function InventoryPage() {
         lowStockThreshold: item.lowStockThreshold,
         isActive: item.isActive,
       }))}
+      locale={env.APP_LOCALE}
     />
   );
 }

@@ -3,7 +3,7 @@ import { PrismaClient, Role, StockMovementType, LedgerCategory } from "@prisma/c
 const prisma = new PrismaClient();
 
 async function main() {
-  const currency = "USD";
+  const currency = (process.env.APP_CURRENCY ?? "USD").toUpperCase();
 
   const admin = await prisma.user.upsert({
     where: { email: "admin@example.com" },
@@ -15,12 +15,33 @@ async function main() {
     },
   });
 
+  await prisma.user.upsert({
+    where: { email: "member@example.com" },
+    update: {
+      name: "홍길동",
+    },
+    create: {
+      email: "member@example.com",
+      name: "홍길동",
+      role: Role.MEMBER,
+    },
+  });
+
   await prisma.allowlistEntry.upsert({
     where: { value: "example.com" },
     update: {},
     create: {
       value: "example.com",
       note: "Default domain for local dev",
+    },
+  });
+
+  await prisma.allowlistEntry.upsert({
+    where: { value: "example.kr" },
+    update: {},
+    create: {
+      value: "example.kr",
+      note: "Korean domain for local dev",
     },
   });
 
@@ -81,7 +102,7 @@ async function main() {
         itemId: created.id,
         type: StockMovementType.RESTOCK,
         quantity: item.currentStock,
-        unitCostCents: item.priceCents - 50,
+        unitCostCents: Math.max(item.priceCents - 50, 0),
         byUserId: admin.id,
         note: "Initial stock load",
       },

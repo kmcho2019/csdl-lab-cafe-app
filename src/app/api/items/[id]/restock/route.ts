@@ -2,6 +2,8 @@ import { LedgerCategory, StockMovementType } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { formatCurrency } from "@/lib/currency";
+import { env } from "@/lib/env";
 import { requireAdmin } from "@/server/auth/guards";
 import { prisma } from "@/server/db/client";
 
@@ -58,7 +60,8 @@ export async function POST(
       await tx.ledgerEntry.create({
         data: {
           description:
-            ledgerDescription ?? `Restock ${item.name} (${quantity} @ ${unitCostCents} cents)`,
+            ledgerDescription ??
+            `Restock ${item.name} (${quantity} @ ${formatCurrency(unitCostCents, item.currency, { locale: env.APP_LOCALE })} each)`,
           amountCents: -1 * unitCostCents * quantity,
           category: LedgerCategory.PURCHASE,
           userId: user.id,

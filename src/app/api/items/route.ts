@@ -2,6 +2,7 @@ import { StockMovementType } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { env } from "@/lib/env";
 import { requireAdmin, requireSession } from "@/server/auth/guards";
 import { prisma } from "@/server/db/client";
 
@@ -63,13 +64,13 @@ export async function POST(request: Request) {
         category: data.category,
         unit: data.unit,
         priceCents: data.priceCents,
-        currency: data.currency ?? "USD",
+        currency: (data.currency ?? env.APP_CURRENCY).toUpperCase(),
         currentStock: data.currentStock,
         lowStockThreshold: data.lowStockThreshold,
         priceHistory: {
           create: {
             priceCents: data.priceCents,
-            currency: data.currency ?? "USD",
+            currency: (data.currency ?? env.APP_CURRENCY).toUpperCase(),
           },
         },
       },
@@ -82,7 +83,7 @@ export async function POST(request: Request) {
           type: StockMovementType.RESTOCK,
           quantity: data.currentStock,
           byUserId: user.id,
-          note: "Initial stock on item creation",
+          note: `Initial stock load (${data.currentStock} units)`,
         },
       });
     }

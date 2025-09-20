@@ -3,6 +3,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
+import { formatCurrency } from "@/lib/currency";
+
 type Item = {
   id: string;
   name: string;
@@ -22,24 +24,7 @@ type ConsumptionResponse = {
   };
   newStock: number;
 };
-
-const formatterCache = new Map<string, Intl.NumberFormat>();
-
-function formatMoney(valueCents: number, currency: string) {
-  if (!formatterCache.has(currency)) {
-    formatterCache.set(
-      currency,
-      new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency,
-      }),
-    );
-  }
-
-  return formatterCache.get(currency)!.format(valueCents / 100);
-}
-
-export function ItemsGrid({ items }: { items: Item[] }) {
+export function ItemsGrid({ items, locale }: { items: Item[]; locale: string }) {
   const [inventory, setInventory] = useState(items);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
@@ -72,7 +57,9 @@ export function ItemsGrid({ items }: { items: Item[] }) {
       setInventory((prev) =>
         prev.map((item) => (item.id === variables.itemId ? { ...item, currentStock: data.newStock } : item)),
       );
-      setMessage(`Enjoy! ${formatMoney(data.consumption.priceAtTxCents, data.consumption.currency)} recorded.`);
+      setMessage(
+        `Enjoy! ${formatCurrency(data.consumption.priceAtTxCents, data.consumption.currency, { locale })} recorded.`,
+      );
       setMessageType("success");
     },
     onError: (error: unknown) => {
@@ -109,7 +96,7 @@ export function ItemsGrid({ items }: { items: Item[] }) {
                       <div className="flex items-center justify-between">
                         <h3 className="text-base font-semibold text-slate-900">{item.name}</h3>
                         <span className="text-sm font-semibold text-slate-700">
-                          {formatMoney(item.priceCents, item.currency)}
+                          {formatCurrency(item.priceCents, item.currency, { locale })}
                         </span>
                       </div>
                       <p className="text-xs text-slate-500">

@@ -1,14 +1,10 @@
 import { Role } from "@prisma/client";
 import { redirect } from "next/navigation";
 
+import { formatCurrency } from "@/lib/currency";
 import { env } from "@/lib/env";
 import { getAuthSession } from "@/server/auth/session";
 import { prisma } from "@/server/db/client";
-
-const formatter = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: env.APP_CURRENCY ?? "USD",
-});
 
 export default async function LedgerPage() {
   const session = await getAuthSession();
@@ -60,11 +56,17 @@ export default async function LedgerPage() {
                     {entry.purchaseOrder ? ` · ${entry.purchaseOrder.vendorName}` : ""}
                   </div>
                 </td>
-                <td className={`px-4 py-3 align-top text-right font-semibold ${entry.amountCents >= 0 ? "text-emerald-600" : "text-red-600"}`}>
-                  {formatter.format(entry.amountCents / 100)}
+                <td
+                  className={`px-4 py-3 align-top text-right font-semibold ${
+                    entry.amountCents >= 0 ? "text-emerald-600" : "text-red-600"
+                  }`}
+                >
+                  {formatCurrency(entry.amountCents, env.APP_CURRENCY, { locale: env.APP_LOCALE })}
                 </td>
                 <td className="px-4 py-3 align-top text-sm text-slate-500">
-                  {entry.balanceAfterCents != null ? formatter.format(entry.balanceAfterCents / 100) : "—"}
+                  {entry.balanceAfterCents != null
+                    ? formatCurrency(entry.balanceAfterCents, env.APP_CURRENCY, { locale: env.APP_LOCALE })
+                    : "—"}
                 </td>
               </tr>
             ))}

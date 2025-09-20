@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "@/styles/globals.css";
 import { ReactQueryProvider } from "@/components/providers/react-query-provider";
+import { env } from "@/lib/env";
 
 export const metadata: Metadata = {
   title: "Lab Cafe Hub",
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang={env.APP_LOCALE}>
       <body className="min-h-screen bg-slate-50 text-slate-900">
         <ReactQueryProvider>
           <div className="flex min-h-screen flex-col">

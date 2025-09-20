@@ -3,21 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
-const formatterCache = new Map<string, Intl.NumberFormat>();
-
-function formatMoney(valueCents: number, currency: string) {
-  if (!formatterCache.has(currency)) {
-    formatterCache.set(
-      currency,
-      new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency,
-      }),
-    );
-  }
-
-  return formatterCache.get(currency)!.format(valueCents / 100);
-}
+import { formatCurrency } from "@/lib/currency";
 
 type Message = { type: "success" | "error"; text: string } | null;
 
@@ -47,7 +33,7 @@ type WriteOffPayload = {
   recordLedger: boolean;
 };
 
-export function InventoryManager({ items }: { items: InventoryItem[] }) {
+export function InventoryManager({ items, locale }: { items: InventoryItem[]; locale: string }) {
   const [state, setState] = useState(items);
   const [message, setMessage] = useState<Message>(null);
 
@@ -137,7 +123,7 @@ export function InventoryManager({ items }: { items: InventoryItem[] }) {
                     <div>
                       <h3 className="text-base font-semibold text-slate-900">{item.name}</h3>
                       <p className="text-sm text-slate-500">
-                        {item.currentStock} {item.unit ?? "units"} · {formatMoney(item.priceCents, item.currency)} price
+                        {item.currentStock} {item.unit ?? "units"} · {formatCurrency(item.priceCents, item.currency, { locale })} price
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-3">
@@ -174,7 +160,7 @@ export function InventoryManager({ items }: { items: InventoryItem[] }) {
                             />
                           </label>
                           <label className="text-xs font-medium text-slate-500">
-                            Unit cost (cents)
+                            Unit cost (minor units)
                             <input
                               name="unitCost"
                               type="number"

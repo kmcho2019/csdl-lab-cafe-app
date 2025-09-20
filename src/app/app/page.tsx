@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { ItemsGrid } from "@/components/items/items-grid";
+import { formatCurrency } from "@/lib/currency";
 import { env } from "@/lib/env";
 import { getAuthSession } from "@/server/auth/session";
 import { prisma } from "@/server/db/client";
@@ -23,10 +24,6 @@ export default async function DashboardPage() {
   ]);
 
   const openTabCents = openTab._sum.priceAtTxCents ?? 0;
-  const formatter = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: env.APP_CURRENCY ?? "USD",
-  });
 
   return (
     <div className="space-y-6">
@@ -36,7 +33,10 @@ export default async function DashboardPage() {
           Grab a snack, and we will keep your tab up to date.
         </p>
         <p className="mt-4 text-sm font-medium text-slate-900">
-          Open tab: <span className="text-brand">{formatter.format(openTabCents / 100)}</span>
+          Open tab:
+          <span className="ml-1 text-brand">
+            {formatCurrency(openTabCents, env.APP_CURRENCY, { locale: env.APP_LOCALE })}
+          </span>
         </p>
       </section>
 
@@ -51,6 +51,7 @@ export default async function DashboardPage() {
           currentStock: item.currentStock,
           lowStockThreshold: item.lowStockThreshold,
         }))}
+        locale={env.APP_LOCALE}
       />
     </div>
   );

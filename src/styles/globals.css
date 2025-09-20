@@ -9,6 +9,7 @@
 body {
   @apply bg-slate-50 text-slate-900;
   font-feature-settings: "liga" 1, "calt" 1;
+  font-family: "Inter", "Noto Sans KR", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", sans-serif;
 }
 
 main {

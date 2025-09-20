@@ -2,6 +2,8 @@ import { LedgerCategory, StockMovementType } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { formatCurrency } from "@/lib/currency";
+import { env } from "@/lib/env";
 import { requireAdmin } from "@/server/auth/guards";
 import { prisma } from "@/server/db/client";
 
@@ -63,7 +65,9 @@ export async function POST(
     if (recordLedger) {
       await tx.ledgerEntry.create({
         data: {
-          description: ledgerDescription ?? `Write-off ${item.name} (${quantity})`,
+          description:
+            ledgerDescription ??
+            `Write-off ${item.name} (${quantity} @ ${formatCurrency(item.priceCents, item.currency, { locale: env.APP_LOCALE })})`,
           amountCents: -1 * item.priceCents * quantity,
           category: LedgerCategory.WRITE_OFF,
           userId: user.id,

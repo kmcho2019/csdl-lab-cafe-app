@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { formatCurrency } from "@/lib/currency";
+import { env } from "@/lib/env";
 import { requireSession } from "@/server/auth/guards";
 import { prisma } from "@/server/db/client";
 
@@ -20,6 +22,10 @@ export async function GET() {
       role: user.role,
       isActive: user.isActive,
       openTabCents: tab._sum.priceAtTxCents ?? 0,
+      openTabFormatted: formatCurrency(tab._sum.priceAtTxCents ?? 0, env.APP_CURRENCY, {
+        locale: env.APP_LOCALE,
+      }),
+      currency: env.APP_CURRENCY,
     },
   });
 }

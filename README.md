@@ -26,6 +26,7 @@ A lightweight web app to manage a lab's snack/drink cafe: track inventory, recor
 - One‑tap **“Take one”** (records consumption + decrements stock).
 - See **current tab** and full history.
 - See **past settlements** and what was owed/paid per period.
+- Names and receipts render in any language (Korean verified) with locale-aware currency formatting.
 
 ### Admin
 - All member features.
@@ -173,7 +174,8 @@ Key environment variables (see `.env.example` for all):
 - `GITHUB_ID`, `GITHUB_SECRET` – OAuth creds
 - `ALLOWLIST_DOMAINS` – comma-separated domains (e.g., `uni.edu,other.edu`)
 - `SMTP_*` – for email notifications
-- `APP_CURRENCY` – e.g., `USD`, `EUR`, `JPY`
+- `APP_CURRENCY` – e.g., `USD`, `EUR`, `KRW`; store prices in minor units (won have no decimals).
+- `APP_LOCALE` – e.g., `en-US`, `ko-KR`; drives per-user number/currency formatting.
 
 ---
 

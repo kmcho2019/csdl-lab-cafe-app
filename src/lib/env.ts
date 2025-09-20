@@ -9,7 +9,11 @@ const envSchema = z
     GITHUB_ID: z.string().optional(),
     GITHUB_SECRET: z.string().optional(),
     ALLOWLIST_DOMAINS: z.string().optional(),
-    APP_CURRENCY: z.string().default("USD"),
+    APP_CURRENCY: z
+      .string()
+      .default("USD")
+      .transform((currency) => currency.toUpperCase()),
+    APP_LOCALE: z.string().default("en-US"),
   })
   .superRefine((env, ctx) => {
     if (!env.NEXTAUTH_SECRET && env.NODE_ENV === "production") {
@@ -31,7 +35,8 @@ export const env = envSchema.parse({
   GITHUB_ID: process.env.GITHUB_ID,
   GITHUB_SECRET: process.env.GITHUB_SECRET,
   ALLOWLIST_DOMAINS: process.env.ALLOWLIST_DOMAINS,
-  APP_CURRENCY: process.env.APP_CURRENCY ?? "USD",
+  APP_CURRENCY: process.env.APP_CURRENCY,
+  APP_LOCALE: process.env.APP_LOCALE ?? "en-US",
 });
 
 export const allowlistedDomains = env.ALLOWLIST_DOMAINS
