@@ -1,0 +1,36 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: lab_cafe
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  mailhog:
+    image: mailhog/mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025" # smtp
+      - "8025:8025" # ui
+
+  # web:
+  #   build: .
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     DATABASE_URL: postgresql://postgres:postgres@db:5432/lab_cafe
+  #     NEXTAUTH_URL: http://localhost:3000
+  #     NEXTAUTH_SECRET: change-me
+  #     GITHUB_ID: change-me
+  #     GITHUB_SECRET: change-me
+  #   ports:
+  #     - "3000:3000"
+
+volumes:
+  db_data:
