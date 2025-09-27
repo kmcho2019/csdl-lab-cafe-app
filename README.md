@@ -147,10 +147,10 @@ See `SECURITY.md` for details.
 #### Option A – Docker Compose (everything in containers)
 1. Install Docker Desktop or Docker Engine + Compose plugin.
 2. Copy env defaults: `cp .env.example .env`.
-3. Edit `.env` and set:
-   - `DATABASE_URL=postgresql://postgres:postgres@db:5432/lab_cafe`
+3. Edit `.env` and set (the sample already points `DATABASE_URL` at the `db` service):
    - `NEXTAUTH_SECRET` to a random 32+ char string.
    - `GITHUB_ID` / `GITHUB_SECRET` once your OAuth app is ready.
+   - (optional) `COMPOSE_DATABASE_URL` if you need something other than the default `postgresql://postgres:postgres@db:5432/lab_cafe` injected by Docker Compose.
 4. Start Postgres: `docker compose up -d db` (wait for "healthy" status).
 5. Install dependencies in the web container: `docker compose run --rm web npm install`.
 6. Apply the Prisma schema: `docker compose run --rm web npx prisma db push`.
