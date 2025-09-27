@@ -1,9 +1,14 @@
 # Dockerfile
 
-FROM node:18-alpine
+FROM node:18-bullseye-slim
 
-# Install Git and other essentials
-RUN apk add --no-cache git openssh-client
+# Install Git, SSH client, and OpenSSL 1.1 runtime for Prisma engines
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    git \
+    openssh-client \
+    libssl1.1 \
+  && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory
 WORKDIR /app

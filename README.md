@@ -158,6 +158,8 @@ See `SECURITY.md` for details.
 8. Launch the app: `docker compose up web` (or `docker compose up` for both services). Visit http://localhost:3000.
 9. Stop containers with `docker compose down` when finished.
 
+> **OpenSSL dependency note:** If Prisma reports `libssl.so.1.1` missing after pulling updates, rebuild the web image with `docker compose build --no-cache web` and recreate the `web_node_modules` volume (`docker compose down --volumes`). The refreshed Debian-based image ships the required OpenSSL runtime for GitHub sign-in flows.
+
 Common dockerised workflows:
 - Run linting: `docker compose run --rm web npm run lint`
 - Run unit tests: `docker compose run --rm web npm run test`
