@@ -11,7 +11,6 @@
   "shutdownAction": "stopCompose",
   "postCreateCommand": "npm install && npm run prisma:generate",
   "containerEnv": {
-    "DATABASE_URL": "postgresql://postgres:postgres@db:5432/lab_cafe",
     "NEXT_TELEMETRY_DISABLED": "1"
   },
   "forwardPorts": [3000, 5432],
