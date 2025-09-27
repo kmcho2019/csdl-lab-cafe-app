@@ -1,13 +1,13 @@
 # Dockerfile
 
-FROM node:18-bullseye-slim
+FROM node:20-bookworm-slim
 
-# Install Git, SSH client, and OpenSSL 1.1 runtime for Prisma engines
+# Install Git, SSH client, and OpenSSL 3 runtime for Prisma engines
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     git \
     openssh-client \
-    libssl1.1 \
+    libssl3 \
   && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory

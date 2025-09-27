@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export const DEV_SECRET_FALLBACK = "dev-secret-32-character-placeholder!!";
+
 const envSchema = z
   .object({
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
@@ -29,8 +31,11 @@ export type AppEnv = z.infer<typeof envSchema>;
 export const env = envSchema.parse({
   NODE_ENV: process.env.NODE_ENV,
   DATABASE_URL: process.env.DATABASE_URL,
-  NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ??
-    (process.env.NODE_ENV === "development" ? "insecure-development-secret" : undefined),
+  NEXTAUTH_SECRET:
+    process.env.NEXTAUTH_SECRET ??
+    (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test"
+      ? DEV_SECRET_FALLBACK
+      : undefined),
   NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   GITHUB_ID: process.env.GITHUB_ID,
   GITHUB_SECRET: process.env.GITHUB_SECRET,

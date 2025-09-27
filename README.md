@@ -138,7 +138,7 @@ See `SECURITY.md` for details.
 ## 8) Getting Started
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 20+
 - Docker (for local Postgres) or access to a Postgres DB
 - GitHub OAuth app (client id/secret)
 
@@ -158,7 +158,7 @@ See `SECURITY.md` for details.
 8. Launch the app: `docker compose up web` (or `docker compose up` for both services). Visit http://localhost:3000.
 9. Stop containers with `docker compose down` when finished.
 
-> **OpenSSL dependency note:** If Prisma reports `libssl.so.1.1` missing after pulling updates, rebuild the web image with `docker compose build --no-cache web` and recreate the `web_node_modules` volume (`docker compose down --volumes`). The refreshed Debian-based image ships the required OpenSSL runtime for GitHub sign-in flows.
+> **OpenSSL dependency note:** If Prisma reports `libssl.so.3` missing after pulling updates, rebuild the web image with `docker compose build --no-cache web` and recreate the `web_node_modules` volume (`docker compose down --volumes`). The refreshed Debian-based image ships the required OpenSSL runtime for GitHub sign-in flows.
 
 Common dockerised workflows:
 - Run linting: `docker compose run --rm web npm run lint`
@@ -167,7 +167,7 @@ Common dockerised workflows:
 - Tail logs: `docker compose logs -f web`
 
 #### Option B – Local Node.js with Docker Postgres
-1. Install Node.js 18+ and Docker.
+1. Install Node.js 20+ and Docker.
 2. `cp .env.example .env` and set `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/lab_cafe`.
 3. Start Postgres: `docker compose up -d db`.
 4. `npm install`
