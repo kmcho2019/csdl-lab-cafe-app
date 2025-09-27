@@ -1,9 +1,10 @@
 {
   "name": "Lab Cafe Devcontainer",
   "dockerComposeFile": [
-    "../docker-compose.yml",
-    "docker-compose.yml"
+    "${localWorkspaceFolder}/docker-compose.yml",
+    "${localWorkspaceFolder}/.devcontainer/docker-compose.yml"
   ],
+  "composeProjectName": "csdl-lab-cafe-app",
   "service": "web",
   "workspaceFolder": "/app",
   "runServices": ["db"],
