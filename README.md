@@ -147,10 +147,10 @@ See `SECURITY.md` for details.
 #### Option A – Docker Compose (everything in containers)
 1. Install Docker Desktop or Docker Engine + Compose plugin.
 2. Copy env defaults: `cp .env.example .env`.
-3. Edit `.env` and set (the sample already points `DATABASE_URL` at the `db` service):
+3. Edit `.env` and set (the sample already points the database host at the `db` service):
    - `NEXTAUTH_SECRET` to a random 32+ char string.
    - `GITHUB_ID` / `GITHUB_SECRET` once your OAuth app is ready.
-   - (optional) `COMPOSE_DATABASE_URL` if you need something other than the default `postgresql://postgres:postgres@db:5432/lab_cafe` injected by Docker Compose.
+   - (optional) tweak `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, or `POSTGRES_HOST`; when you do, update `DATABASE_URL` to match.
 4. Start Postgres: `docker compose up -d db` (wait for "healthy" status).
 5. Install dependencies in the web container: `docker compose run --rm web npm install`.
 6. Apply the Prisma schema: `docker compose run --rm web npx prisma db push`.
@@ -168,7 +168,7 @@ Common dockerised workflows:
 
 #### Option B – Local Node.js with Docker Postgres
 1. Install Node.js 20+ and Docker.
-2. `cp .env.example .env` and set `DATABASE_URL=postgresql://postgres:postgres@localhost:5432/lab_cafe`.
+2. `cp .env.example .env` and set `POSTGRES_HOST=localhost` (update `DATABASE_URL` to match if you change the user/password/db name).
 3. Start Postgres: `docker compose up -d db`.
 4. `npm install`
 5. `npm run prisma:migrate` (or `npx prisma db push` during prototyping)
@@ -202,7 +202,8 @@ The app boots with:
 ## 9) Configuration
 
 Key environment variables (see `.env.example` for all):
-- `DATABASE_URL` – Postgres connection string
+- `DATABASE_URL` – Postgres connection string (Compose rebuilds this from the `POSTGRES_*` knobs)
+- `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_HOST`, `POSTGRES_PORT` – canonical database settings used by Docker and local tooling
 - `NEXTAUTH_URL` – app base URL
 - `NEXTAUTH_SECRET` – random 32+ char secret
 - `GITHUB_ID`, `GITHUB_SECRET` – OAuth creds
