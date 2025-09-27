@@ -174,6 +174,15 @@ Common dockerised workflows:
 7. `npm run dev` and open http://localhost:3000
 8. `npm run test` (and `npm run lint`) keep the project healthy
 
+
+#### Option C – VS Code Dev Container
+1. Install Docker and the VS Code Dev Containers extension.
+2. Open this repository in VS Code and run `Dev Containers: Reopen in Container`.
+3. Wait for the build to finish; the container runs `npm install` and `npm run prisma:generate` automatically.
+4. Run `npm run prisma:migrate` (or `npm run db:push`) inside the container to sync the schema.
+5. Start the dev server with `npm run dev` and browse at http://localhost:3000.
+6. Use `npm run lint` and `npm run test` for quick checks; Postgres is reachable at `postgresql://postgres:postgres@db:5432/lab_cafe`.
+
 The app boots with:
 - **App router** Next.js 14 + React Server Components.
 - **Auth.js (NextAuth)** backed by Prisma adapter and GitHub OAuth.

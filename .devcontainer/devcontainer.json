@@ -1,0 +1,42 @@
+{
+  "name": "Lab Cafe Devcontainer",
+  "dockerComposeFile": [
+    "../docker-compose.yml",
+    "docker-compose.yml"
+  ],
+  "service": "web",
+  "workspaceFolder": "/app",
+  "runServices": ["db"],
+  "shutdownAction": "stopCompose",
+  "postCreateCommand": "npm install && npm run prisma:generate",
+  "containerEnv": {
+    "DATABASE_URL": "postgresql://postgres:postgres@db:5432/lab_cafe",
+    "NEXT_TELEMETRY_DISABLED": "1"
+  },
+  "forwardPorts": [3000, 5432],
+  "portsAttributes": {
+    "3000": {
+      "label": "Next.js dev server"
+    },
+    "5432": {
+      "label": "PostgreSQL"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "Prisma.prisma",
+        "bradlc.vscode-tailwindcss"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "files.watcherExclude": {
+          "**/node_modules/**": true,
+          "**/.turbo/**": true
+        }
+      }
+    }
+  }
+}
