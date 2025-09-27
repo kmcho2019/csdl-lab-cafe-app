@@ -29,6 +29,7 @@ This document defines **who** (or what) performs which responsibilities in the s
 - Handles OAuth handshakes (GitHub via Auth.js).
 - Enforces email/domain allowlist before creating a User.
 - Maintains sessions; rotates on role changes; revokes archived users.
+- Uses the shared `NEXTAUTH_SECRET` to encrypt JWT sessions for consistent sign-in flows.
 
 ### 2.2 Inventory Agent
 - Single source of truth for stock counts (creates `StockMovement` rows).
@@ -155,4 +156,3 @@ LedgerAgent (optional): debit "Loss/Write-off"
 - Do we enforce **single unit** per item, or support fractional quantities (e.g., coffee beans by weight)?
 - Multiple currencies? (Default single currency via `APP_CURRENCY`.)
 - Tax handling needed? (Default: no tax calculus; prices are tax‑inclusive.)
-

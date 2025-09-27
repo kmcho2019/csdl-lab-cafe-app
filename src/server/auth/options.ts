@@ -25,6 +25,7 @@ function isAllowlisted(email: string) {
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
+  secret: env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
   },

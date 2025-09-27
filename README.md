@@ -158,7 +158,7 @@ See `SECURITY.md` for details.
 8. Launch the app: `docker compose up web` (or `docker compose up` for both services). Visit http://localhost:3000.
 9. Stop containers with `docker compose down` when finished.
 
-> **OpenSSL dependency note:** If Prisma reports `libssl.so.3` missing after pulling updates, rebuild the web image with `docker compose build --no-cache web` and recreate the `web_node_modules` volume (`docker compose down --volumes`). The refreshed Debian-based image ships the required OpenSSL runtime for GitHub sign-in flows.
+> **Prisma runtime note:** The Prisma client now ships both `linux-musl-openssl-3.0.x` and `debian-openssl-3.0.x` engines so the local Node process and the Debian-based web container agree on the runtime. After pulling schema changes, run `npm run prisma:generate` (or `docker compose run --rm web npm run prisma:generate`) to refresh the engines. If Prisma still reports `libssl.so.3` missing, rebuild the web image with `docker compose build --no-cache web` and recreate the `web_node_modules` volume (`docker compose down --volumes`).
 
 Common dockerised workflows:
 - Run linting: `docker compose run --rm web npm run lint`
