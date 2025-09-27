@@ -151,6 +151,7 @@ See `SECURITY.md` for details.
    - `NEXTAUTH_SECRET` to a random 32+ char string.
    - `GITHUB_ID` / `GITHUB_SECRET` once your OAuth app is ready.
    - (optional) tweak `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, or `POSTGRES_HOST`; when you do, update `DATABASE_URL` to match.
+   > Keep the `POSTGRES_*` values unquoted. After changing credentials, run `docker compose down --volumes` so Postgres reinitialises with the new password.
 4. Start Postgres: `docker compose up -d db` (wait for "healthy" status).
 5. Install dependencies in the web container: `docker compose run --rm web npm install`.
 6. Apply the Prisma schema: `docker compose run --rm web npx prisma db push`.
@@ -168,7 +169,7 @@ Common dockerised workflows:
 
 #### Option B – Local Node.js with Docker Postgres
 1. Install Node.js 20+ and Docker.
-2. `cp .env.example .env` and set `POSTGRES_HOST=localhost` (update `DATABASE_URL` to match if you change the user/password/db name).
+2. `cp .env.example .env` and set `POSTGRES_HOST=localhost` (and keep the values unquoted; adjust `DATABASE_URL` if you change the user/password/db name).
 3. Start Postgres: `docker compose up -d db`.
 4. `npm install`
 5. `npm run prisma:migrate` (or `npx prisma db push` during prototyping)
@@ -210,6 +211,7 @@ Key environment variables (see `.env.example` for all):
 - `ALLOWLIST_DOMAINS` – comma-separated domains (e.g., `uni.edu,other.edu`)
 - `SMTP_*` – for email notifications
 - `APP_CURRENCY` – e.g., `USD`, `EUR`, `KRW`; store prices in minor units (won have no decimals).
+- `EMAIL_FROM` – defaults to a quoted value; other variables should stay unquoted to avoid Docker Compose quoting surprises.
 - `APP_LOCALE` – e.g., `en-US`, `ko-KR`; drives per-user number/currency formatting.
 
 ---

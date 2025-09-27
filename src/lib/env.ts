@@ -41,6 +41,22 @@ const envSchema = z
 
 export type AppEnv = z.infer<typeof envSchema>;
 
+const stripWrappingQuotes = (value: string | undefined) => {
+  if (!value) {
+    return value;
+  }
+
+  const trimmed = value.trim();
+  if (
+    (trimmed.startsWith("\"") && trimmed.endsWith("\"")) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    return trimmed.slice(1, -1);
+  }
+
+  return trimmed;
+};
+
 const interpolateEnv = (value: string | undefined, replacements: Record<string, string>) => {
   if (!value) {
     return value;
@@ -57,15 +73,15 @@ const interpolateEnv = (value: string | undefined, replacements: Record<string, 
 };
 
 const resolvedPostgres = {
-  POSTGRES_USER: process.env.POSTGRES_USER ?? DEFAULT_POSTGRES.USER,
-  POSTGRES_PASSWORD: process.env.POSTGRES_PASSWORD ?? DEFAULT_POSTGRES.PASSWORD,
-  POSTGRES_DB: process.env.POSTGRES_DB ?? DEFAULT_POSTGRES.DB,
-  POSTGRES_HOST: process.env.POSTGRES_HOST ?? DEFAULT_POSTGRES.HOST,
-  POSTGRES_PORT: process.env.POSTGRES_PORT ?? DEFAULT_POSTGRES.PORT,
+  POSTGRES_USER: stripWrappingQuotes(process.env.POSTGRES_USER) ?? DEFAULT_POSTGRES.USER,
+  POSTGRES_PASSWORD: stripWrappingQuotes(process.env.POSTGRES_PASSWORD) ?? DEFAULT_POSTGRES.PASSWORD,
+  POSTGRES_DB: stripWrappingQuotes(process.env.POSTGRES_DB) ?? DEFAULT_POSTGRES.DB,
+  POSTGRES_HOST: stripWrappingQuotes(process.env.POSTGRES_HOST) ?? DEFAULT_POSTGRES.HOST,
+  POSTGRES_PORT: stripWrappingQuotes(process.env.POSTGRES_PORT) ?? DEFAULT_POSTGRES.PORT,
 };
 
 const resolvedDatabaseUrl =
-  interpolateEnv(process.env.DATABASE_URL, resolvedPostgres) ??
+  stripWrappingQuotes(interpolateEnv(process.env.DATABASE_URL, resolvedPostgres)) ??
   `postgresql://${resolvedPostgres.POSTGRES_USER}:${resolvedPostgres.POSTGRES_PASSWORD}@${resolvedPostgres.POSTGRES_HOST}:${resolvedPostgres.POSTGRES_PORT}/${resolvedPostgres.POSTGRES_DB}`;
 
 export const env = envSchema.parse({
