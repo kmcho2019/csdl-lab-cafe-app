@@ -25,7 +25,7 @@ PATCH /api/admin/users/clxy123
 ## Items
 - `GET /items?active=true`
 - `POST /items` **(admin)**
-- `PATCH /items/:id` **(admin)** — change name, price, thresholds.
+- `PATCH /items/:id` **(admin)** — update name, price, category, unit, or low-stock threshold.
 - `POST /items/:id/restock` **(admin)** — `{ qty, unitCost, note? }`
 - `POST /items/:id/writeoff` **(admin)** — `{ qty, reason }`
 

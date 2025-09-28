@@ -27,7 +27,7 @@ Legend: ✅ complete · 🚧 usable but missing pieces · ⏳ planned / not star
 ## Core Flows Implemented
 
 - **Member dashboard** (`/app`): lists active items grouped by category with one-tap “Take one” buttons powered by `POST /api/consumptions`.
-- **Inventory operations**: create items (price/name/stock), restock and write-off forms per item, ledger integration, and React Query mutations to keep the UI in sync.
+- **Inventory operations**: create items (price/name/stock), edit existing items (name/price/category via dropdown + add-new), restock and write-off forms per item, ledger integration, and React Query mutations to keep the UI in sync.
 - **People management**: `/app/users` lets admins invite members, promote to admin, and freeze/reactivate accounts without touching SQL.
 - **Admin-only navigation**: server layout at `src/app/app/layout.tsx` gates inventory, people, settlements, and ledger to `Role.ADMIN`.
 - **Consumption safety**: stock decrements happen atomically in a Prisma transaction; out-of-stock attempts return HTTP 409.

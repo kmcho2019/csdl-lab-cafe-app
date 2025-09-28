@@ -42,6 +42,8 @@ Use this checklist when spinning up Lab Cafe Hub for the first time or handing t
 
 Visit `/app/inventory` and use **Add new item** to create menu entries (name, price in minor units, unit, category, initial stock, low-stock threshold). The system records price history and a matching stock movement.
 
+Need to adjust prices or categories later? Use the **Edit** drawer on each item to change name, price, category (including adding new categories), unit, or low-stock threshold without dropping to SQL.
+
 ### 3.3 Configure ledger opening balance
 
 If the cafe already has funds on hand, record them:

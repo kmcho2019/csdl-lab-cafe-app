@@ -46,7 +46,13 @@ Visit `/app/inventory` (admins only). The page lists items grouped by category a
 - Provide the name, price in minor units (e.g., KRW), optional category/unit, and initial stock.
 - On submit the system creates the `Item`, records price history, and posts an initial `RESTOCK` movement for any starting inventory.
 
-### 2.3 Restocking best practices
+### 2.3 Editing an item
+- Expand **Edit** on the item card.
+- Adjust the name, price (minor units), unit, or low-stock threshold.
+- Choose a category from the dropdown or pick **Add new category…** to define a fresh category on the fly.
+- Saving updates the record immediately and, when the price changes, logs a new `ItemPriceHistory` row so settlements stay accurate.
+
+### 2.4 Restocking best practices
 1. Click **Restock** beneath an item.
 2. Enter the quantity received; optionally add the **unit cost (minor units)** and a note.
 3. Provide a ledger description if you want something other than the auto-generated text.
@@ -54,24 +60,12 @@ Visit `/app/inventory` (admins only). The page lists items grouped by category a
 
 > Include the unit cost when you want the ledger to reflect the cash outlay. The API multiplies `unitCostCents × quantity` and posts a `PURCHASE` entry.
 
-### 2.4 Handling write-offs
+### 2.5 Handling write-offs
 1. Click **Write-off**.
 2. Enter the quantity to discard and a short reason (e.g., “expired”, “spilled”).
 3. Toggle **Record in ledger** if you want to recognise the loss; otherwise stock decreases without a financial entry.
 
 Attempting to write off more than the current stock returns an error and leaves counts unchanged.
-
-### 2.5 Price changes
-Until inline editing lands, update price through Prisma or SQL:
-```sql
-UPDATE "Item"
-SET "priceCents" = 400, "updatedAt" = NOW()
-WHERE id = 'itm_123';
-
-INSERT INTO "ItemPriceHistory" (id, "itemId", "priceCents", currency)
-VALUES (gen_random_uuid(), 'itm_123', 400, 'KRW');
-```
-Always insert a matching `ItemPriceHistory` row so settlements remain auditable.
 
 ## 3. Settlements & Member Tabs
 

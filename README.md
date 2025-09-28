@@ -107,6 +107,11 @@ Browser ──(OAuth via GitHub)──> Next.js ── Prisma ──> Postgres
 1. Admin fills **Add new item** form with name, price (minor units), optional category/unit, initial stock, and low-stock threshold.
 2. API creates the `Item`, records `ItemPriceHistory`, and posts an initial `StockMovement(RESTOCK)` for any starting quantity.
 
+### Edit an item
+1. Admin opens the **Edit** drawer in `/app/inventory`.
+2. Adjust name, price, unit, low-stock threshold, or select an existing category (or add a new one).
+3. Saving updates the item, logs price history when the price changes, and refreshes the dashboard immediately.
+
 ### Manage members
 1. Admin opens **People** and submits name/email (plus optional GitHub ID) for a new member.
 2. The system creates the `User`, allowlists the email, and (optionally) sets role `ADMIN`.

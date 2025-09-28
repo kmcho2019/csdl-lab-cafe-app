@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { formatCurrency } from "@/lib/currency";
 
 import { CreateItemForm } from "@/components/inventory/create-item-form";
+import { ItemEditForm } from "@/components/inventory/item-edit-form";
 
 type Message = { type: "success" | "error"; text: string } | null;
 
@@ -54,6 +55,15 @@ export function InventoryManager({
       acc[key].push(item);
       return acc;
     }, {});
+  }, [state]);
+
+  const categoryOptions = useMemo(() => {
+    return Array.from(new Set(state.map((item) => item.category).filter((category): category is string => Boolean(category)))).sort((a, b) =>
+      a.localeCompare(b,
+        undefined,
+        { sensitivity: "base" },
+      ),
+    );
   }, [state]);
 
   const restockMutation = useMutation({
@@ -152,6 +162,19 @@ export function InventoryManager({
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-3">
+                      <details className="group rounded-lg border border-slate-200 p-3">
+                        <summary className="cursor-pointer text-sm font-semibold text-slate-700">Edit</summary>
+                        <ItemEditForm
+                          item={item}
+                          categories={categoryOptions}
+                          currency={currency}
+                          onSaved={(updatedItem) => {
+                            setState((prev) => prev.map((candidate) => (candidate.id === updatedItem.id ? { ...candidate, ...updatedItem } : candidate)));
+                            setMessage({ type: "success", text: `${updatedItem.name} updated.` });
+                          }}
+                          onError={(errorMessage) => setMessage({ type: "error", text: errorMessage })}
+                        />
+                      </details>
                       <details className="group rounded-lg border border-slate-200 p-3">
                         <summary className="cursor-pointer text-sm font-semibold text-slate-700">
                           Restock
