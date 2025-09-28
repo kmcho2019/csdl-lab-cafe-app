@@ -125,3 +125,10 @@ Maintain a simple runbook: who to contact, where backups live, and how to rebuil
 5. Share the `.env` (minus secrets) and update OAuth callbacks if the domain changes.
 
 Lab Cafe Hub should now feel routine: record stock movements promptly, close settlements on schedule, and keep the ledger balanced. Reach for the other docs when you need deeper dives.
+
+## 8. Kiosk Mode
+
+- `/app/kiosk` offers a tablet-ready interface. Choose a member from the dropdown, tap items to add them to the cart, and press **Record purchase** to post the consumptions and stock movements in one go.
+- The cart respects realtime stock counts and returns an error if items are out of stock.
+- Clear the cart between visits with the **Clear cart** button.
+- Kiosk mode requires an admin session—open the page, sign in as an admin, and hand the tablet to the queue.

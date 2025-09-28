@@ -58,6 +58,7 @@ VALUES (gen_random_uuid(), NOW(), 'Opening float', 75000, 'RECEIPT', 75000);
 2. Confirm the toast appears and the stock count decrements.
 3. Visit `/app/inventory` and `/app/ledger` to verify the stock movement and ledger entry.
 4. (Optional) Add another admin via the **People** page and confirm they can access admin sections.
+5. (Optional) Visit `/app/kiosk`, select a member, add a couple of items, and record the purchase to ensure the kiosk experience works on shared devices.
 
 ## 5. Prepare for settlements
 

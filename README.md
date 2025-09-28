@@ -32,6 +32,7 @@ A lightweight web app to manage a lab's snack/drink cafe: track inventory, recor
 - All member features.
 - **Inventory:** add/edit items; restock; write-off (expiry/damage); price changes with history.
 - **Menu builder:** add new items with price and initial stock directly from the UI.
+- **Kiosk mode:** tablet-friendly cart where admins can pick a member, tap items, and record purchases in one checkout.
 - **Users:** add/promote/demote; archive (freeze) leavers; email/domain allowlist.
 - **People console:** invite members (name/email/GitHub id), promote to admin, freeze/reactivate accounts.
 - **Settlements:** preview → finalize → export CSV/Excel; optional email notices.

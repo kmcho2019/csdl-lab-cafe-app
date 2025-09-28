@@ -29,6 +29,9 @@ PATCH /api/admin/users/clxy123
 - `POST /items/:id/restock` **(admin)** — `{ qty, unitCost, note? }`
 - `POST /items/:id/writeoff` **(admin)** — `{ qty, reason }`
 
+## Kiosk
+- `POST /kiosk/checkout` **(admin)** — `{ userId, cart: [{ itemId, quantity }] }`
+
 ## Consumption
 - `POST /consumptions` — `{ itemId, quantity=1 }`
 - `GET /consumptions?userId&from&to&settled=false`

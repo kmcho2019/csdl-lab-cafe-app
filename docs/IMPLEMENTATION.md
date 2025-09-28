@@ -21,6 +21,7 @@ This document describes the current state of Lab Cafe Hub as shipped in this rep
 | **Ordering Agent**       | ⏳     | Purchase order tables exist; UI and API wiring are not yet implemented. |
 | **Analytics Agent**      | ⏳     | Low stock messaging appears inline; full reports/exports still pending. |
 | **Notification Agent**   | ⏳     | Email templates and SMTP variables reserved; final delivery queue not yet wired. |
+| **Kiosk checkout**       | ✅     | `/app/kiosk` cart drives `/api/kiosk/checkout`, recording multi-item consumptions per member on shared tablets. |
 
 Legend: ✅ complete · 🚧 usable but missing pieces · ⏳ planned / not started.
 
@@ -29,6 +30,7 @@ Legend: ✅ complete · 🚧 usable but missing pieces · ⏳ planned / not star
 - **Member dashboard** (`/app`): lists active items grouped by category with one-tap “Take one” buttons powered by `POST /api/consumptions`.
 - **Inventory operations**: create items (price/name/stock), edit existing items (name/price/category via dropdown + add-new), restock and write-off forms per item, ledger integration, and React Query mutations to keep the UI in sync.
 - **People management**: `/app/users` lets admins invite members, promote to admin, and freeze/reactivate accounts without touching SQL.
+- **Kiosk checkout**: `/app/kiosk` provides a cart interface for admins to record multiple consumptions at once; `/api/kiosk/checkout` handles stock validation server-side.
 - **Admin-only navigation**: server layout at `src/app/app/layout.tsx` gates inventory, people, settlements, and ledger to `Role.ADMIN`.
 - **Consumption safety**: stock decrements happen atomically in a Prisma transaction; out-of-stock attempts return HTTP 409.
 - **Environment parsing**: `src/lib/env.ts` normalises Postgres variables, interpolates `${POSTGRES_*}` placeholders, and enforces a next-auth secret in production.

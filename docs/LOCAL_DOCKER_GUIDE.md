@@ -96,6 +96,12 @@ Refresh `/app` to confirm **Inventory**, **People**, **Settlements**, and **Ledg
 4. Expand **Restock** under an existing item, enter the quantity and optional unit cost, and submit.
 5. The UI updates immediately; check `/app/ledger` to see the purchase entry when a unit cost is provided.
 
+## 10.5. Try kiosk mode
+
+1. Open `/app/kiosk` (admin only).
+2. Select a member, tap a few items, and hit **Record purchase**.
+3. Verify that the cart clears and the member’s tab reflects the new charges.
+
 ## 10. Check the ledger
 
 Visit `/app/ledger` to see the latest entries. The demo seed inserts an "Initial float" credit so you can observe debits and running balances.

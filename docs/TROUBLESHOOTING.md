@@ -26,6 +26,7 @@ The fastest fixes for the issues you are most likely to encounter while operatin
 | “Not enough stock to fulfill request” toast | Someone else depleted the item. Restock via `/app/inventory` or adjust the stock count in the database. |
 | Restock/write-off API returns 500 | Inspect the browser console/network tab. Most failures are validation related (negative quantity, missing unit cost). Check server logs for additional error context. |
 | Item price not updating settlements | Settlements use `priceAtTxCents`. Verify you added an `ItemPriceHistory` row when changing price and that future consumptions use the new cost. |
+| Kiosk checkout says items are unavailable | Refresh `/app/kiosk` to pull the latest stock data; the item may have been disabled or restocked in another session. |
 
 ## Settlements & Ledger
 

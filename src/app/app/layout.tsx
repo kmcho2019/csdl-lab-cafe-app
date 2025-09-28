@@ -18,6 +18,7 @@ export default async function AppLayout({
   const baseLinks = [{ href: "/app", label: "Dashboard" }];
   const adminLinks = [
     { href: "/app/inventory", label: "Inventory" },
+    { href: "/app/kiosk", label: "Kiosk" },
     { href: "/app/users", label: "People" },
     { href: "/app/ledger", label: "Ledger" },
     { href: "/app/settlements", label: "Settlements" },
