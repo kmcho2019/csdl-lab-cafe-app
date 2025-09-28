@@ -266,41 +266,6 @@ export function UserAdminTable({ currentUserId, users }: UserAdminTableProps) {
                 </tr>
               );
             })}
-                          updateUserMutation.mutate({
-                            id: user.id,
-                            body: {
-                              role: user.role === Role.ADMIN ? Role.MEMBER : Role.ADMIN,
-                            },
-                          })
-                        }
-                        className="rounded border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400"
-                      >
-                        {user.role === Role.ADMIN ? "Set as member" : "Promote to admin"}
-                      </button>
-                      <button
-                        type="button"
-                        disabled={pending || (isSelf && isLastActiveAdmin && user.isActive)}
-                        onClick={() =>
-                          updateUserMutation.mutate({
-                            id: user.id,
-                            body: {
-                              isActive: !user.isActive,
-                            },
-                          })
-                        }
-                        className={`rounded px-3 py-2 text-xs font-semibold transition ${
-                          user.isActive
-                            ? "border border-red-200 text-red-600 hover:bg-red-50"
-                            : "border border-emerald-200 text-emerald-600 hover:bg-emerald-50"
-                        } disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400`}
-                      >
-                        {user.isActive ? "Freeze account" : "Reactivate"}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
             {!state.length && (
               <tr>
                 <td colSpan={5} className="px-4 py-6 text-center text-sm text-slate-500">
