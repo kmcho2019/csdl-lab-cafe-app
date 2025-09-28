@@ -1,14 +1,8 @@
+import { Role } from "@prisma/client";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { getAuthSession } from "@/server/auth/session";
-
-const links = [
-  { href: "/app", label: "Dashboard" },
-  { href: "/app/inventory", label: "Inventory" },
-  { href: "/app/ledger", label: "Ledger" },
-  { href: "/app/settlements", label: "Settlements" },
-];
 
 export default async function AppLayout({
   children,
@@ -20,6 +14,19 @@ export default async function AppLayout({
   if (!session?.user) {
     redirect("/api/auth/signin");
   }
+
+  const baseLinks = [{ href: "/app", label: "Dashboard" }];
+  const adminLinks = [
+    { href: "/app/inventory", label: "Inventory" },
+    { href: "/app/users", label: "People" },
+    { href: "/app/ledger", label: "Ledger" },
+    { href: "/app/settlements", label: "Settlements" },
+  ];
+
+  const links =
+    session.user.role === Role.ADMIN
+      ? [...baseLinks, ...adminLinks]
+      : baseLinks;
 
   return (
     <div className="grid gap-8">

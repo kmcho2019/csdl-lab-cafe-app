@@ -27,15 +27,16 @@ Legend: ✅ complete · 🚧 usable but missing pieces · ⏳ planned / not star
 ## Core Flows Implemented
 
 - **Member dashboard** (`/app`): lists active items grouped by category with one-tap “Take one” buttons powered by `POST /api/consumptions`.
-- **Inventory operations**: restock and write-off forms per item, ledger integration, and React Query mutations to keep the UI in sync.
-- **Admin-only navigation**: server layout at `src/app/app/layout.tsx` gates inventory, settlements, and ledger to `Role.ADMIN`.
+- **Inventory operations**: create items (price/name/stock), restock and write-off forms per item, ledger integration, and React Query mutations to keep the UI in sync.
+- **People management**: `/app/users` lets admins invite members, promote to admin, and freeze/reactivate accounts without touching SQL.
+- **Admin-only navigation**: server layout at `src/app/app/layout.tsx` gates inventory, people, settlements, and ledger to `Role.ADMIN`.
 - **Consumption safety**: stock decrements happen atomically in a Prisma transaction; out-of-stock attempts return HTTP 409.
 - **Environment parsing**: `src/lib/env.ts` normalises Postgres variables, interpolates `${POSTGRES_*}` placeholders, and enforces a next-auth secret in production.
 
 ## File Map
 
 - `src/app/app` – Authenticated routes: member dashboard + admin sections.
-- `src/app/api` – REST endpoints (`/items`, `/items/:id/restock`, `/items/:id/writeoff`, `/consumptions`, `/me`).
+- `src/app/api` – REST endpoints (`/items`, `/items/:id/restock`, `/items/:id/writeoff`, `/consumptions`, `/admin/users`, `/me`).
 - `src/components/items` & `src/components/inventory` – Client components for consumption and admin stock workflows.
 - `src/lib` – Environment loader, currency formatter, Prisma client singleton.
 - `prisma` – Schema, migrations, and `seed.ts` (demo users, allowlist domains, sample stock, opening ledger balance).
@@ -43,9 +44,8 @@ Legend: ✅ complete · 🚧 usable but missing pieces · ⏳ planned / not star
 ## Known Gaps & Next Steps
 
 1. **Settlement operations** – Build server actions/API routes for draft → finalize → export, plus UI on `/app/settlements`.
-2. **User administration UI** – Expose allowlist and role toggles without dropping to SQL/Prisma Studio.
-3. **Ledger exports** – Implement CSV downloads and pagination for historical entries.
-4. **Analytics & notifications** – Wire up popularity/low stock reports and SMTP-based reminder emails.
-5. **Automated tests** – Add Vitest coverage for API handlers (currently limited to `env` parsing tests).
+2. **Ledger exports** – Implement CSV downloads and pagination for historical entries.
+3. **Analytics & notifications** – Wire up popularity/low stock reports and SMTP-based reminder emails.
+4. **Automated tests** – Extend Vitest coverage to API handlers and UI flows beyond the current unit suite.
 
 Use this overview when planning new work: it clarifies which pieces are production-ready and which still rely on manual steps.

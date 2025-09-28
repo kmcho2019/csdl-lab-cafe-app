@@ -15,39 +15,24 @@ This guide expands on the README for day-to-day stewardship of the lab cafe: man
 - Only emails/domains in the allowlist may complete sign-in. The allowlist is evaluated case-insensitively and supports both full emails and bare domains.
 
 ### 1.2 Managing the allowlist
-There is not yet a dedicated UI; use Prisma Studio, `psql`, or an API call.
-
-```sql
--- Allow any address at example.edu
-INSERT INTO "AllowlistEntry" (id, value, note)
-VALUES (gen_random_uuid(), 'example.edu', 'Graduate program cohort 2025');
-
--- Allow a specific email
-INSERT INTO "AllowlistEntry" (id, value)
-VALUES (gen_random_uuid(), 'alex@example.com');
-```
-
-Remove access by deleting the row or, for a temporary pause, archiving the user (see §1.4).
+- Visit **People** (`/app/users`).
+- Fill in the **Add lab member** form with the member’s name, email, and optional GitHub ID.
+- Submit – the address is saved to the allowlist and a `User` row is created.
+- You can still record allowlist entries manually through SQL/Prisma when bulk importing; the UI will display them automatically once a matching `User` exists.
 
 > Tip: the seed script whitelists `example.com` and `example.kr` for local testing. Replace these with your real domains before going live.
 
 ### 1.3 Promoting an admin
-1. Ask the person to sign in once so a `User` row exists.
-2. Run:
-   ```sql
-   UPDATE "User" SET role = 'ADMIN' WHERE email = 'new.admin@example.com';
-   ```
-3. Ask them to refresh `/app`; the navigation bar should now display **Inventory**, **Settlements**, and **Ledger** links.
+1. Open **People** and locate the member.
+2. Click **Promote to admin**. The button toggles to **Set as member** once the update succeeds.
+3. Ask them to refresh `/app`; a promoted admin gains access to **Inventory**, **People**, **Ledger**, and **Settlements**.
 
-Keep at least two active admins to avoid lockouts.
+Keep at least two active admins to avoid lockouts—the UI prevents demoting or freezing the final active admin.
 
 ### 1.4 Archiving or reactivating members
-- Set `isActive = false` to hide a user from member lists and block future sign-ins without deleting their history:
-  ```sql
-  UPDATE "User" SET "isActive" = false WHERE email = 'graduated@example.com';
-  ```
-- Re-enable by setting `isActive = true`.
-- Archiving does **not** remove the open tab or settlement participation; they still appear in admin views for reconciliation.
+- Click **Freeze account** in the People table to deactivate a user (blocks sign-in but keeps history).
+- Click **Reactivate** to restore access.
+- The UI will not let you freeze yourself if you are the last active admin.
 
 ## 2. Inventory Operations
 
@@ -57,20 +42,9 @@ Visit `/app/inventory` (admins only). The page lists items grouped by category a
 - Write-offs record a `StockMovement` (`WRITE_OFF`), clamp stock atomically, and can post a `LedgerEntry` loss when “Record in ledger” is checked.
 
 ### 2.2 Adding a new item
-Use the API (or Prisma Studio) until the inline form ships:
-```bash
-curl -X POST http://localhost:3000/api/items \
-  -H "Content-Type: application/json" \
-  -H "Cookie: next-auth.session-token=<admin-session>" \
-  -d '{
-    "name": "Matcha Latte",
-    "priceCents": 450,
-    "category": "Drinks",
-    "unit": "bottle",
-    "currentStock": 12,
-    "lowStockThreshold": 4
-  }'
-```
+- Open `/app/inventory` and use the **Add new item** form at the top of the page.
+- Provide the name, price in minor units (e.g., KRW), optional category/unit, and initial stock.
+- On submit the system creates the `Item`, records price history, and posts an initial `RESTOCK` movement for any starting inventory.
 
 ### 2.3 Restocking best practices
 1. Click **Restock** beneath an item.

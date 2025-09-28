@@ -31,7 +31,9 @@ A lightweight web app to manage a lab's snack/drink cafe: track inventory, recor
 ### Admin
 - All member features.
 - **Inventory:** add/edit items; restock; write-off (expiry/damage); price changes with history.
+- **Menu builder:** add new items with price and initial stock directly from the UI.
 - **Users:** add/promote/demote; archive (freeze) leavers; email/domain allowlist.
+- **People console:** invite members (name/email/GitHub id), promote to admin, freeze/reactivate accounts.
 - **Settlements:** preview → finalize → export CSV/Excel; optional email notices.
 - **Ledger:** purchases (debits) and receipts (credits); running balance.
 - **Orders:** optional purchase orders → receive stock → update ledger.
@@ -100,6 +102,15 @@ Browser ──(OAuth via GitHub)──> Next.js ── Prisma ──> Postgres
 2. Create `PurchaseOrder` (optional) and `StockMovement(RESTOCK)`.
 3. Ledger: add **debit** for purchase.
 4. Increase `Item.currentStock` atomically.
+
+### Add new menu item
+1. Admin fills **Add new item** form with name, price (minor units), optional category/unit, initial stock, and low-stock threshold.
+2. API creates the `Item`, records `ItemPriceHistory`, and posts an initial `StockMovement(RESTOCK)` for any starting quantity.
+
+### Manage members
+1. Admin opens **People** and submits name/email (plus optional GitHub ID) for a new member.
+2. The system creates the `User`, allowlists the email, and (optionally) sets role `ADMIN`.
+3. Promote/demote and freeze/reactivate members via inline buttons; the API updates `role` and `isActive`.
 
 ### Write-off (expiry/damage)
 - Admin records `WRITE_OFF` movement with reason (note). Stock decreases; optional **debit** in ledger (if you want to recognize as loss).

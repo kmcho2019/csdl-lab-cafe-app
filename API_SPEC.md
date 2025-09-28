@@ -8,21 +8,19 @@ Base URL: `/api`
 - `GET /api/auth/*` — OAuth callbacks, session, CSRF, etc.
 
 ## Users
-- `GET /users` **(admin)** — list users (filter by active, role).
-- `POST /users` **(admin)** — create user manually.
-- `PATCH /users/:id` **(admin)** — update role, isActive.
+- `GET /admin/users` **(admin)** — list users with role/isActive metadata.
+- `POST /admin/users` **(admin)** — create member (name, email, optional GitHub ID, optional admin role). Auto-allowlists the email.
+- `PATCH /admin/users/:id` **(admin)** — update role, `isActive`, email, or GitHub ID.
 - `GET /me` — current user profile.
 
 ### Example
 ```http
-PATCH /api/users/clxy123
+PATCH /api/admin/users/clxy123
 { "role": "ADMIN", "isActive": true }
 ```
 
 ## Allowlist
-- `GET /allowlist` **(admin)**
-- `POST /allowlist` **(admin)** — add email or domain pattern.
-- `DELETE /allowlist/:id` **(admin)**
+- Managed implicitly when creating users. Use Prisma Studio/SQL for bulk domain imports.
 
 ## Items
 - `GET /items?active=true`

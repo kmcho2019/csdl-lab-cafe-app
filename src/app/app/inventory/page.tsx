@@ -34,6 +34,7 @@ export default async function InventoryPage() {
         isActive: item.isActive,
       }))}
       locale={env.APP_LOCALE}
+      currency={env.APP_CURRENCY}
     />
   );
 }

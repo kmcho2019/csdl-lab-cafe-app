@@ -5,9 +5,11 @@ import { useMemo, useState } from "react";
 
 import { formatCurrency } from "@/lib/currency";
 
+import { CreateItemForm } from "@/components/inventory/create-item-form";
+
 type Message = { type: "success" | "error"; text: string } | null;
 
-type InventoryItem = {
+export type InventoryItem = {
   id: string;
   name: string;
   category: string | null;
@@ -33,7 +35,15 @@ type WriteOffPayload = {
   recordLedger: boolean;
 };
 
-export function InventoryManager({ items, locale }: { items: InventoryItem[]; locale: string }) {
+export function InventoryManager({
+  items,
+  locale,
+  currency,
+}: {
+  items: InventoryItem[];
+  locale: string;
+  currency: string;
+}) {
   const [state, setState] = useState(items);
   const [message, setMessage] = useState<Message>(null);
 
@@ -98,8 +108,23 @@ export function InventoryManager({ items, locale }: { items: InventoryItem[]; lo
     <div className="space-y-6">
       <header className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <h1 className="text-xl font-semibold text-slate-900">Inventory</h1>
-        <p className="mt-2 text-sm text-slate-600">Restock or write off items. Admin only.</p>
+        <p className="mt-2 text-sm text-slate-600">Create new menu items, restock, or write off stock.</p>
       </header>
+
+      <CreateItemForm
+        defaultCurrency={currency}
+        onCreated={(item) => {
+          setState((prev) => {
+            const existingIndex = prev.findIndex((existing) => existing.id === item.id);
+            if (existingIndex !== -1) {
+              const next = [...prev];
+              next[existingIndex] = item;
+              return next;
+            }
+            return [...prev, item];
+          });
+        }}
+      />
 
       {message && (
         <div

@@ -17,43 +17,30 @@ Use this checklist when spinning up Lab Cafe Hub for the first time or handing t
 
 ## 2. Create your admin account
 
-1. Visit `http://localhost:3000/app` and sign in with GitHub. If your email is not allowed yet, temporarily add it to `ALLOWLIST_DOMAINS` or insert an `AllowlistEntry` row.
-2. Promote your user:
-   ```sql
-   UPDATE "User" SET role = 'ADMIN' WHERE email = 'you@example.com';
+1. Visit `http://localhost:3000/app` and sign in with GitHub. If your email is not allowlisted yet, temporarily add it to `ALLOWLIST_DOMAINS` or insert an `AllowlistEntry` row.
+2. Promote your user (once) with:
+   ```bash
+   docker compose exec db psql \
+     -U ${POSTGRES_USER:-postgres} \
+     -d ${POSTGRES_DB:-lab_cafe} \
+     -c "UPDATE \"User\" SET role = 'ADMIN' WHERE email = 'you@example.com';"
    ```
-   (Run via `docker compose exec db psql ...`.)
-3. Refresh `/app`; verify that the admin navigation links appear.
+3. Refresh `/app`; verify that the admin navigation (Inventory, People, Settlements, Ledger) appears.
+
+> Future promotions can be done entirely from the **People** page—SQL is only needed for the very first admin.
 
 ## 3. Seed core data
 
-### 3.1 Allowlist additional members
+### 3.1 Invite additional members
 
-Until the UI exists, insert rows directly:
-```sql
-INSERT INTO "AllowlistEntry" (id, value, note)
-VALUES (gen_random_uuid(), 'lab.edu', 'All lab emails'),
-       (gen_random_uuid(), 'friend@example.com', 'Visiting researcher');
-```
+1. Open `/app/users`.
+2. Use **Add lab member** to enter their name, email, and (optionally) GitHub numeric ID.
+3. Tick **Start as admin** for co-treasurers.
+4. Submit—the email is added to the allowlist and a `User` row is ready for OAuth sign-in.
 
 ### 3.2 Add inventory
 
-Use the API or Prisma Studio while the inline form is under construction:
-```bash
-curl -X POST http://localhost:3000/api/items \
-  -H "Content-Type: application/json" \
-  -H "Cookie: next-auth.session-token=<admin-session-token>" \
-  -d '{
-    "name": "Drip Coffee",
-    "priceCents": 300,
-    "category": "Drinks",
-    "unit": "cup",
-    "currentStock": 24,
-    "lowStockThreshold": 6
-  }'
-```
-
-Repeat for each item stocked in the cafe. Restock quantities and costs later via the UI.
+Visit `/app/inventory` and use **Add new item** to create menu entries (name, price in minor units, unit, category, initial stock, low-stock threshold). The system records price history and a matching stock movement.
 
 ### 3.3 Configure ledger opening balance
 
@@ -68,23 +55,23 @@ VALUES (gen_random_uuid(), NOW(), 'Opening float', 75000, 'RECEIPT', 75000);
 1. From your member view (`/app`), click **Take one** to simulate grabbing a snack.
 2. Confirm the toast appears and the stock count decrements.
 3. Visit `/app/inventory` and `/app/ledger` to verify the stock movement and ledger entry.
-4. (Optional) Add another admin by repeating the sign-in + promotion steps for a colleague.
+4. (Optional) Add another admin via the **People** page and confirm they can access admin sections.
 
 ## 5. Prepare for settlements
 
-Even though the draft/finalize UI is still in progress, you can create the first settlement manually when ready:
+The listing UI exists, but creating/finalising settlements still requires SQL or scripts:
 1. Insert a `Settlement` covering the desired date range.
 2. Update prior consumptions with the `settlementId`.
 3. Insert `SettlementLine` rows with per-member totals (query `Consumption` grouped by `userId`).
 4. Record `Payment` rows as members reimburse the cafe.
 
-Keep the SQL snippets you write—once the UI lands you can compare behaviour.
+Keep any helper SQL you write; once the settlement workflow ships you can compare results.
 
 ## 6. Hand-off checklist for new admins
 
-- Share the `.env` (without production secrets) and GitHub OAuth app instructions.
-- Ensure the new admin’s email/domain is allowlisted and their `User` role is `ADMIN`.
+- Share the `.env` (without production secrets) and GitHub OAuth instructions.
+- Confirm the new admin’s email/domain is allowlisted and their role is `ADMIN` (via **People** or SQL).
 - Review the inventory list and reconcile physical stock before transferring responsibility.
-- Point them to this guide, [ADMIN_GUIDE.md](./ADMIN_GUIDE.md), and [TROUBLESHOOTING.md](./TROUBLESHOOTING.md).
+- Point successors to this guide plus [ADMIN_GUIDE.md](./ADMIN_GUIDE.md) and [TROUBLESHOOTING.md](./TROUBLESHOOTING.md).
 
 Following these steps guarantees a smooth start for every new caretaker of the lab cafe.

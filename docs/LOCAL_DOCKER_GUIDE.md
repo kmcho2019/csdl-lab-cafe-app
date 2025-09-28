@@ -71,7 +71,7 @@ Visit http://localhost:3000 and sign in with GitHub (make sure your email or dom
 
 ## 7. Promote yourself to admin
 
-After the first sign-in, promote your account so you can see admin sections:
+After the first sign-in, either ask an existing admin to promote you from the **People** page or run:
 
 ```bash
 docker compose exec db psql \
@@ -80,7 +80,7 @@ docker compose exec db psql \
   -c "UPDATE \"User\" SET role = 'ADMIN' WHERE email = 'your.email@example.com';"
 ```
 
-Refresh `/app` to confirm **Inventory**, **Settlements**, and **Ledger** appear in the nav.
+Refresh `/app` to confirm **Inventory**, **People**, **Settlements**, and **Ledger** appear in the nav.
 
 ## 8. Record a snack
 
@@ -88,11 +88,12 @@ Refresh `/app` to confirm **Inventory**, **Settlements**, and **Ledger** appear 
 2. Click **Take one** on an item.
 3. A success toast appears and the stock counter decrements. The transaction is stored in `Consumption` and a `StockMovement` row is logged.
 
-## 9. Restock an item
+## 9. Add or restock an item
 
 1. Navigate to `/app/inventory` (admin only).
-2. Expand **Restock** under an item, enter the quantity and optional unit cost, and submit.
-3. The UI updates immediately; check `/app/ledger` to see the purchase entry when a unit cost is provided.
+2. Use **Add new item** to create menu entries with price, unit, initial stock, and low-stock threshold.
+3. Expand **Restock** under an existing item, enter the quantity and optional unit cost, and submit.
+4. The UI updates immediately; check `/app/ledger` to see the purchase entry when a unit cost is provided.
 
 ## 10. Check the ledger
 

@@ -45,6 +45,8 @@ FROM "AllowlistEntry"
 ORDER BY "createdAt" DESC;
 ```
 
+> Tip: day-to-day allowlist updates can be handled in the **People** admin page; use SQL when bulk importing domains or auditing data.
+
 ### 2.2 Promote, archive, or inspect users
 
 ```sql
@@ -61,6 +63,8 @@ LEFT JOIN "Consumption" c ON c."userId" = u.id AND c."settlementId" IS NULL
 GROUP BY u.id
 ORDER BY open_tab DESC NULLS LAST;
 ```
+
+> The admin UI exposes Promote/Freeze/Reactivate buttons; use SQL for bulk updates or scripted migrations.
 
 ### 2.3 Inventory snapshots
 
