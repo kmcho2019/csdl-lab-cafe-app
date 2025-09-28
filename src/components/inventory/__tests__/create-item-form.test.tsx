@@ -61,7 +61,7 @@ describe("CreateItemForm", () => {
     fireEvent.change(screen.getByLabelText(/Initial stock/i), { target: { value: "5" } });
     fireEvent.change(screen.getByLabelText(/Low stock threshold/i), { target: { value: "2" } });
     fireEvent.change(screen.getByLabelText(/Category/i), { target: { value: "Snacks" } });
-    fireEvent.change(screen.getByLabelText(/Unit/i), { target: { value: "bag" } });
+    fireEvent.change(screen.getByLabelText(/Unit \(optional\)/i), { target: { value: "bag" } });
 
     fireEvent.click(screen.getByRole("button", { name: /add item/i }));
 
