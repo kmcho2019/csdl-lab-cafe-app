@@ -1,6 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { Role } from "@prisma/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { UserAdminTable } from "@/components/admin/user-admin-table";
@@ -13,7 +12,7 @@ describe("UserAdminTable", () => {
     id: "user-1",
     name: "Casey",
     email: "casey@example.com",
-    role: Role.MEMBER,
+    role: "MEMBER" as const,
     isActive: true,
     githubId: "",
     lastLoginAt: null,
@@ -52,7 +51,7 @@ describe("UserAdminTable", () => {
         Promise.resolve({
           user: {
             ...baseUser,
-            role: Role.ADMIN,
+            role: "ADMIN",
           },
         }),
     });
@@ -93,7 +92,7 @@ describe("UserAdminTable", () => {
             id: "user-99",
             name: "Alex",
             email: "alex@example.com",
-            role: Role.ADMIN,
+            role: "ADMIN",
             isActive: true,
             githubId: "123",
             lastLoginAt: null,

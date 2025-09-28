@@ -2,15 +2,16 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Role } from "@prisma/client";
 
 import { formatDistanceToNow } from "date-fns";
+
+type UserRole = "ADMIN" | "MEMBER";
 
 type ManagedUser = {
   id: string;
   name: string;
   email: string;
-  role: Role;
+  role: UserRole;
   isActive: boolean;
   githubId: string;
   lastLoginAt: string | null;
@@ -27,7 +28,7 @@ type UserAdminTableProps = {
 function sortUsers(users: ManagedUser[]) {
   return [...users].sort((a, b) => {
     if (a.role !== b.role) {
-      return a.role === Role.ADMIN ? -1 : 1;
+      return a.role === "ADMIN" ? -1 : 1;
     }
     return a.email.localeCompare(b.email);
   });
@@ -42,7 +43,7 @@ export function UserAdminTable({ currentUserId, users }: UserAdminTableProps) {
       name: string;
       email: string;
       githubId?: string;
-      role: Role;
+      role: UserRole;
     }) => {
       const response = await fetch("/api/admin/users", {
         method: "POST",
@@ -92,7 +93,7 @@ export function UserAdminTable({ currentUserId, users }: UserAdminTableProps) {
 
   const pending = createUserMutation.isPending || updateUserMutation.isPending;
 
-  const adminCount = useMemo(() => state.filter((user) => user.role === Role.ADMIN && user.isActive).length, [state]);
+  const adminCount = useMemo(() => state.filter((user) => user.role === "ADMIN" && user.isActive).length, [state]);
 
   return (
     <div className="space-y-6">
@@ -133,7 +134,7 @@ export function UserAdminTable({ currentUserId, users }: UserAdminTableProps) {
                 name,
                 email,
                 githubId: githubIdRaw || undefined,
-                role: startAsAdmin ? Role.ADMIN : Role.MEMBER,
+                role: startAsAdmin ? "ADMIN" : "MEMBER",
               },
               {
                 onSuccess: () => form.reset(),
@@ -197,7 +198,7 @@ export function UserAdminTable({ currentUserId, users }: UserAdminTableProps) {
           <tbody className="divide-y divide-slate-100 text-sm text-slate-700">
             {state.map((user) => {
               const isSelf = user.id === currentUserId;
-              const isLastActiveAdmin = user.role === Role.ADMIN && user.isActive && adminCount <= 1;
+              const isLastActiveAdmin = user.role === "ADMIN" && user.isActive && adminCount <= 1;
               return (
                 <tr key={user.id}>
                   <td className="px-4 py-3 align-top">
@@ -226,19 +227,19 @@ export function UserAdminTable({ currentUserId, users }: UserAdminTableProps) {
                     <div className="flex flex-wrap justify-end gap-2">
                       <button
                         type="button"
-                        disabled={pending || (user.role === Role.ADMIN && isLastActiveAdmin)}
+                        disabled={pending || (user.role === "ADMIN" && isLastActiveAdmin)}
                         onClick={() => {
                           setMessage(null);
                           updateUserMutation.mutate({
                             id: user.id,
                             body: {
-                              role: user.role === Role.ADMIN ? Role.MEMBER : Role.ADMIN,
+                              role: user.role === "ADMIN" ? "MEMBER" : "ADMIN",
                             },
                           });
                         }}
                         className="rounded border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400"
                       >
-                        {user.role === Role.ADMIN ? "Set as member" : "Promote to admin"}
+                        {user.role === "ADMIN" ? "Set as member" : "Promote to admin"}
                       </button>
                       <button
                         type="button"
