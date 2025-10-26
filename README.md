@@ -41,6 +41,9 @@ A lightweight web app to manage a lab's snack/drink cafe: track inventory, recor
 - **Reports:** popularity, least/most consumed, low stock alerts.
 - **Data export:** transactions, settlements, and ledger as CSV/Excel.
 
+### Documentation Hub
+- Built-in reference library at `/docs` (or via **View docs** on the landing page) renders Markdown/Prisma sources in-app, so operators never have to leave the site during production incidents.
+
 ---
 
 ## 3) Architecture Overview

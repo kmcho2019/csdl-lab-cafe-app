@@ -1,6 +1,7 @@
+import "@/styles/globals.css";
+import Link from "next/link";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import "@/styles/globals.css";
 import { ReactQueryProvider } from "@/components/providers/react-query-provider";
 import { env } from "@/lib/env";
 
@@ -18,9 +19,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <header className="border-b border-slate-200 bg-white">
               <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
                 <div className="flex items-center gap-2">
-                  <span className="rounded bg-brand px-2 py-1 text-sm font-semibold text-white">
+                  <Link
+                    href="/"
+                    className="rounded bg-brand px-2 py-1 text-sm font-semibold text-white transition hover:bg-brand-dark"
+                  >
                     Lab Cafe Hub
-                  </span>
+                  </Link>
                   <span className="text-sm text-slate-500">
                     Fuel the lab, track the tab.
                   </span>
