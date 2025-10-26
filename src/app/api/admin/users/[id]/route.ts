@@ -1,22 +1,10 @@
-import { Prisma, Role } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
-import { z } from "zod";
 
 import { serializeUser } from "../utils";
 import { requireAdmin } from "@/server/auth/guards";
 import { prisma } from "@/server/db/client";
-
-export const updateUserSchema = z
-  .object({
-    name: z.string().min(1).optional(),
-    email: z.string().email().optional(),
-    githubId: z.string().trim().min(1).optional().nullable(),
-    role: z.nativeEnum(Role).optional(),
-    isActive: z.boolean().optional(),
-  })
-  .refine((value) => Object.keys(value).length > 0, {
-    message: "At least one field must be provided",
-  });
+import { updateUserSchema } from "../schema";
 
 export async function PATCH(
   request: Request,

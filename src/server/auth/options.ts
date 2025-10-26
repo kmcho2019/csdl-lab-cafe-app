@@ -1,5 +1,6 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import type { NextAuthOptions } from "next-auth";
+import type { Adapter } from "next-auth/adapters";
 import GitHubProvider from "next-auth/providers/github";
 import { Role } from "@prisma/client";
 
@@ -24,7 +25,7 @@ function isAllowlisted(email: string) {
 }
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma) as Adapter,
   secret: env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
@@ -39,6 +40,8 @@ export const authOptions: NextAuthOptions = {
           id: profile.id?.toString() ?? profile.node_id ?? "",
           name: profile.name ?? profile.login,
           email: profile.email,
+          role: Role.MEMBER,
+          isActive: true,
         };
       },
     }),

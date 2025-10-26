@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 const docs = [
   {
     title: "Product Overview",
@@ -39,14 +37,16 @@ export default function DocsPage() {
       </header>
       <div className="grid gap-4 md:grid-cols-2">
         {docs.map((doc) => (
-          <Link
+          <a
             key={doc.href}
             href={doc.href}
+            target="_blank"
+            rel="noreferrer"
             className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-brand hover:text-brand"
           >
             <h2 className="text-lg font-semibold text-slate-900">{doc.title}</h2>
             <p className="mt-2 text-sm text-slate-600">{doc.description}</p>
-          </Link>
+          </a>
         ))}
       </div>
     </div>

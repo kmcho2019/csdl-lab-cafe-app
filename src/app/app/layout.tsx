@@ -1,6 +1,7 @@
 import { Role } from "@prisma/client";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import type { Route } from "next";
 
 import { getAuthSession } from "@/server/auth/session";
 
@@ -15,14 +16,17 @@ export default async function AppLayout({
     redirect("/api/auth/signin");
   }
 
-  const baseLinks = [{ href: "/app", label: "Dashboard" }];
+  const baseLinks = [{ href: "/app", label: "Dashboard" }] satisfies Array<{
+    href: Route;
+    label: string;
+  }>;
   const adminLinks = [
     { href: "/app/inventory", label: "Inventory" },
     { href: "/app/kiosk", label: "Kiosk" },
     { href: "/app/users", label: "People" },
     { href: "/app/ledger", label: "Ledger" },
     { href: "/app/settlements", label: "Settlements" },
-  ];
+  ] satisfies Array<{ href: Route; label: string }>;
 
   const links =
     session.user.role === Role.ADMIN

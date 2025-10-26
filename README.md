@@ -185,7 +185,7 @@ Common dockerised workflows:
 - Tail logs: `docker compose logs -f web`
 
 #### Option B – Local Node.js with Docker Postgres
-1. Install Node.js 20+ and Docker.
+1. Install Node.js 20.18+ (matches Prisma 6 runtime) and Docker.
 2. `cp .env.example .env` and set `POSTGRES_HOST=localhost` (and keep the values unquoted; adjust `DATABASE_URL` if you change the user/password/db name).
 3. Start Postgres: `docker compose up -d db`.
 4. `npm install`
@@ -193,6 +193,7 @@ Common dockerised workflows:
 6. (optional) `npx prisma db seed`
 7. `npm run dev` and open http://localhost:3000
 8. `npm run test` (and `npm run lint`) keep the project healthy
+9. `npm run typecheck` and `npm run build` should run clean before submitting changes
 
 
 #### Option C – VS Code Dev Container

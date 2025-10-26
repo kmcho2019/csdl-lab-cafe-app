@@ -1,18 +1,11 @@
-import { Prisma, Role } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
-import { z } from "zod";
 
 import { requireAdmin } from "@/server/auth/guards";
 import { prisma } from "@/server/db/client";
 
 import { serializeUser } from "./utils";
-
-export const createUserSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Valid email required"),
-  githubId: z.string().trim().min(1, "GitHub ID must not be empty").optional(),
-  role: z.nativeEnum(Role).default(Role.MEMBER),
-});
+import { createUserSchema } from "./schema";
 
 export async function GET() {
   await requireAdmin();

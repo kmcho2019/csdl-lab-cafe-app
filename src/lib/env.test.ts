@@ -2,18 +2,28 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const ORIGINAL_ENV = { ...process.env };
 
+function restoreEnv() {
+  for (const key of Object.keys(process.env)) {
+    delete process.env[key];
+  }
+
+  Object.assign(process.env, ORIGINAL_ENV);
+}
+
 describe("env", () => {
   beforeEach(() => {
     vi.resetModules();
-    process.env = { ...ORIGINAL_ENV };
+    vi.unstubAllEnvs();
+    restoreEnv();
   });
 
   afterEach(() => {
-    process.env = { ...ORIGINAL_ENV };
+    vi.unstubAllEnvs();
+    restoreEnv();
   });
 
   it("uses a development secret that satisfies Auth.js requirements", async () => {
-    process.env.NODE_ENV = "development";
+    vi.stubEnv("NODE_ENV", "development");
     delete process.env.NEXTAUTH_SECRET;
 
     const { DEV_SECRET_FALLBACK, env } = await import("./env");

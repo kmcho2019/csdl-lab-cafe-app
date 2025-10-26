@@ -18,6 +18,10 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "types": [
+      "vitest/globals",
+      "@testing-library/jest-dom"
+    ],
     "baseUrl": ".",
     "paths": {
       "@/app/*": [
@@ -48,7 +52,8 @@
     "src/**/*.tsx",
     "src/**/*.cts",
     "src/**/*.mts",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "vitest.setup.ts"
   ],
   "exclude": [
     "node_modules"

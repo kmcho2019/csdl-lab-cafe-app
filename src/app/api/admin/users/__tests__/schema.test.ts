@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { createUserSchema } from "@/app/api/admin/users/route";
-import { updateUserSchema } from "@/app/api/admin/users/[id]/route";
+import { createUserSchema, updateUserSchema } from "@/app/api/admin/users/schema";
 
 describe("admin user schemas", () => {
   it("accepts valid user creation payloads", () => {

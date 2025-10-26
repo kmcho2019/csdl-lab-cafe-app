@@ -127,8 +127,15 @@ export function KioskScreen({ users, items }: KioskScreenProps) {
       )}
 
       <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">Select member</h2>
+        <h2 className="text-lg font-semibold text-slate-900" id="kiosk-member-heading">
+          Select member
+        </h2>
+        <label htmlFor="kiosk-member" className="sr-only">
+          Select member
+        </label>
         <select
+          id="kiosk-member"
+          aria-labelledby="kiosk-member-heading"
           className="mt-3 w-full rounded border border-slate-200 px-3 py-2 text-sm focus:border-brand focus:outline-none"
           value={selectedUserId}
           onChange={(event) => {
@@ -267,4 +274,3 @@ export function KioskScreen({ users, items }: KioskScreenProps) {
     </div>
   );
 }
-

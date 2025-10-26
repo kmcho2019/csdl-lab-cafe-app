@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { kioskCheckoutSchema } from "@/app/api/kiosk/checkout/route";
+import { kioskCheckoutSchema } from "@/app/api/kiosk/checkout/schema";
 
 describe("kiosk checkout schema", () => {
   it("accepts a valid payload", () => {
@@ -20,4 +20,3 @@ describe("kiosk checkout schema", () => {
     expect(result.success).toBe(false);
   });
 });
-

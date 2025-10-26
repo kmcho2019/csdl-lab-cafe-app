@@ -1,21 +1,9 @@
 import { StockMovementType } from "@prisma/client";
 import { NextResponse } from "next/server";
-import { z } from "zod";
 
 import { requireAdmin } from "@/server/auth/guards";
 import { prisma } from "@/server/db/client";
-
-export const kioskCheckoutSchema = z.object({
-  userId: z.string().min(1),
-  cart: z
-    .array(
-      z.object({
-        itemId: z.string().min(1),
-        quantity: z.coerce.number().int().positive(),
-      }),
-    )
-    .min(1),
-});
+import { kioskCheckoutSchema } from "./schema";
 
 export async function POST(request: Request) {
   await requireAdmin();
