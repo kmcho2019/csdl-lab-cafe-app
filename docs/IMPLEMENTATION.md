@@ -4,7 +4,7 @@ This document describes the current state of Lab Cafe Hub as shipped in this rep
 
 ## Platform Snapshot
 
-- **Framework**: Next.js 14 App Router, TypeScript, Tailwind CSS.
+- **Framework**: Next.js 15 App Router, TypeScript, Tailwind CSS.
 - **Authentication**: Auth.js (NextAuth) with GitHub provider plus custom allowlist checks.
 - **Database**: PostgreSQL with Prisma (see `prisma/schema.prisma`).
 - **UI**: Shadcn/ui components + TanStack Query for client mutations.

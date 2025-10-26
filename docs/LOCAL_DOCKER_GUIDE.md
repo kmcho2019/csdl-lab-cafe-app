@@ -7,7 +7,7 @@ This walkthrough shows how to run Lab Cafe Hub on Windows using WSL2 (Ubuntu) an
 - **Docker Desktop** with WSL2 integration enabled (Settings → Resources → WSL Integration → Ubuntu).
 - **Ubuntu (WSL2)** installed (`wsl.exe` → `Ubuntu`).
 - **Git** inside WSL.
-- **Node.js 20** (optional but recommended for running seeds outside the container).
+- **Node.js 22** (optional but recommended for running seeds outside the container).
 
 ## 2. Clone the repository
 

@@ -1,6 +1,6 @@
 import "@/styles/globals.css";
 import Link from "next/link";
-import type { Metadata } from "next";
+import type { Metadata } from "next/types";
 import type { ReactNode } from "react";
 import { ReactQueryProvider } from "@/components/providers/react-query-provider";
 import { env } from "@/lib/env";

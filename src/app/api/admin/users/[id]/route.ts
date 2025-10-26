@@ -8,10 +8,11 @@ import { updateUserSchema } from "../schema";
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
   await requireAdmin();
 
+  const { id } = await context.params;
   const body = await request.json().catch(() => null);
   const parsed = updateUserSchema.safeParse(body);
 
@@ -47,7 +48,7 @@ export async function PATCH(
 
   try {
     const user = await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data: updates,
       select: {
         id: true,

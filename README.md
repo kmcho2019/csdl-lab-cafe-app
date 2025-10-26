@@ -158,7 +158,7 @@ See `SECURITY.md` for details.
 ## 8) Getting Started
 
 ### Prerequisites
-- Node.js 20+
+- Node.js 22+
 - Docker (for local Postgres) or access to a Postgres DB
 - GitHub OAuth app (client id/secret)
 
@@ -188,7 +188,7 @@ Common dockerised workflows:
 - Tail logs: `docker compose logs -f web`
 
 #### Option B – Local Node.js with Docker Postgres
-1. Install Node.js 20.18+ (matches Prisma 6 runtime) and Docker.
+1. Install Node.js 22.x (matches Prisma 6 runtime and production) and Docker.
 2. `cp .env.example .env` and set `POSTGRES_HOST=localhost` (and keep the values unquoted; adjust `DATABASE_URL` if you change the user/password/db name).
 3. Start Postgres: `docker compose up -d db`.
 4. `npm install`
@@ -208,7 +208,7 @@ Common dockerised workflows:
 6. Use `npm run lint` and `npm run test` for quick checks; Postgres is reachable at `postgresql://postgres:postgres@db:5432/lab_cafe`.
 
 The app boots with:
-- **App router** Next.js 14 + React Server Components.
+- **App router** Next.js 15 + React Server Components.
 - **Auth.js (NextAuth)** backed by Prisma adapter and GitHub OAuth.
 - **Prisma Client** with the schema in `prisma/schema.prisma`.
 - **React Query** on the client for optimistic actions (e.g., “Take one”).

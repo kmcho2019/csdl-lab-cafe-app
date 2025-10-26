@@ -18,10 +18,11 @@ const updateItemSchema = z
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
   await requireAdmin();
 
+  const { id } = await context.params;
   const body = await request.json().catch(() => null);
   const parsed = updateItemSchema.safeParse(body);
 
@@ -37,7 +38,7 @@ export async function PATCH(
   try {
     const updated = await prisma.$transaction(async (tx) => {
       const existing = await tx.item.findUnique({
-        where: { id: params.id },
+        where: { id },
         select: {
           id: true,
           priceCents: true,
@@ -50,7 +51,7 @@ export async function PATCH(
       }
 
       const item = await tx.item.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           name: updates.name,
           priceCents: updates.priceCents,
@@ -74,7 +75,7 @@ export async function PATCH(
       if (updates.priceCents !== undefined && updates.priceCents !== existing.priceCents) {
         await tx.itemPriceHistory.create({
           data: {
-            itemId: params.id,
+            itemId: id,
             priceCents: updates.priceCents,
             currency: existing.currency,
           },

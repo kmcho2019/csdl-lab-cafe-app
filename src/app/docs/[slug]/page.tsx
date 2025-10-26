@@ -2,14 +2,14 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import type { Metadata } from "next";
+import type { Metadata } from "next/types";
 import { remark } from "remark";
 import remarkHtml from "remark-html";
 
 import { DOCS, DOC_LOOKUP, type DocSlug } from "../registry";
 
 type PageParams = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
 function isDocSlug(slug: string): slug is DocSlug {
@@ -21,11 +21,13 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
-  if (!isDocSlug(params.slug)) {
+  const { slug } = await params;
+
+  if (!isDocSlug(slug)) {
     return { title: "Documentation" } satisfies Metadata;
   }
 
-  const doc = DOC_LOOKUP[params.slug];
+  const doc = DOC_LOOKUP[slug];
 
   return {
     title: `${doc.title} | Documentation`,
@@ -62,11 +64,13 @@ async function loadDocContent(docSlug: DocSlug) {
 }
 
 export default async function DocDetailPage({ params }: PageParams) {
-  if (!isDocSlug(params.slug)) {
+  const { slug } = await params;
+
+  if (!isDocSlug(slug)) {
     notFound();
   }
 
-  const doc = await loadDocContent(params.slug);
+  const doc = await loadDocContent(slug);
 
   if (!doc) {
     notFound();

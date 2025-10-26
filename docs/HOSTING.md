@@ -1,10 +1,10 @@
 # Hosting & Deployment Playbook
 
-Lab Cafe Hub is a Next.js 14 application backed by PostgreSQL. Deploy it wherever you can run Node.js 20 and reach a Postgres instance. This playbook covers the most common options.
+Lab Cafe Hub is a Next.js 15 application backed by PostgreSQL. Deploy it wherever you can run Node.js 22 and reach a Postgres instance. This playbook covers the most common options.
 
 ## 1. Requirements
 
-- Node.js 20+ (Vercel provides this automatically)
+- Node.js 22+ (Vercel provides this automatically)
 - PostgreSQL 14 or newer
 - GitHub OAuth app (client id + secret)
 - Optional SMTP account if you plan to send settlement emails later

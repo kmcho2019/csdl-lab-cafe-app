@@ -16,10 +16,11 @@ const restockSchema = z.object({
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } },
+  context: { params: Promise<{ id: string }> },
 ) {
   const session = await requireAdmin();
   const user = session.user!;
+  const { id } = await context.params;
 
   const parsed = restockSchema.safeParse(await request.json());
   if (!parsed.success) {
@@ -31,7 +32,7 @@ export async function POST(
 
   const { quantity, unitCostCents, note, ledgerDescription } = parsed.data;
 
-  const item = await prisma.item.findUnique({ where: { id: params.id } });
+  const item = await prisma.item.findUnique({ where: { id } });
   if (!item) {
     return NextResponse.json(
       { error: { code: "NOT_FOUND", message: "Item not found" } },

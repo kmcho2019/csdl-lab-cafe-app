@@ -1,6 +1,6 @@
 # Dockerfile
 
-FROM node:20-bookworm-slim
+FROM node:22-bookworm-slim
 
 # Install Git, SSH client, and OpenSSL 3 runtime for Prisma engines
 RUN apt-get update \
