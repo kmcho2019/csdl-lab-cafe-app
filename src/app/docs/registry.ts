@@ -19,6 +19,8 @@ type Definition = {
   format: DocFormat;
 };
 
+type DocHref = `/docs/${DocSlug}`;
+
 const definitions: ReadonlyArray<Definition> = [
   {
     slug: "agents",
@@ -87,11 +89,13 @@ const definitions: ReadonlyArray<Definition> = [
 
 export type DocDefinition = Definition;
 
-export const DOCS: ReadonlyArray<Definition & {
-  href: { pathname: "/docs/[slug]"; params: { slug: DocSlug } };
-}> = definitions.map((doc) => ({
+export const DOCS: ReadonlyArray<
+  Definition & {
+    href: DocHref;
+  }
+> = definitions.map((doc) => ({
   ...doc,
-  href: { pathname: "/docs/[slug]", params: { slug: doc.slug } },
+  href: `/docs/${doc.slug}` as DocHref,
 }));
 
 export const DOC_LOOKUP: Record<DocSlug, (typeof DOCS)[number]> = DOCS.reduce(
