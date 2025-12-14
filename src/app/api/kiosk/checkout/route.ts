@@ -1,29 +1,41 @@
-import { StockMovementType } from "@prisma/client";
+import { Role, StockMovementType } from "@prisma/client";
 import { NextResponse } from "next/server";
 
-import { requireAdmin } from "@/server/auth/guards";
+import { requireSession } from "@/server/auth/guards";
+import { authErrorToResponse } from "@/server/auth/http";
 import { prisma } from "@/server/db/client";
 import { kioskCheckoutSchema } from "./schema";
 
 export async function POST(request: Request) {
-  await requireAdmin();
-
-  const payload = await request.json().catch(() => null);
-  const parsed = kioskCheckoutSchema.safeParse(payload);
-
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: { code: "INVALID_BODY", details: parsed.error.flatten() } },
-      { status: 400 },
-    );
-  }
-
-  const { userId, cart } = parsed.data;
-
   try {
+    const session = await requireSession();
+    const actor = session.user!;
+
+    const payload = await request.json().catch(() => null);
+    const parsed = kioskCheckoutSchema.safeParse(payload);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: { code: "INVALID_BODY", details: parsed.error.flatten() } },
+        { status: 400 },
+      );
+    }
+
+    const { userId, cart } = parsed.data;
+
+    if (actor.role !== Role.ADMIN && userId !== actor.id) {
+      return NextResponse.json(
+        { error: { code: "FORBIDDEN", message: "Members can only record purchases for themselves." } },
+        { status: 403 },
+      );
+    }
+
     const result = await prisma.$transaction(async (tx) => {
-      const user = await tx.user.findUnique({ where: { id: userId, isActive: true } });
-      if (!user) {
+      const targetUser = await tx.user.findUnique({
+        where: { id: userId, isActive: true },
+        select: { id: true },
+      });
+      if (!targetUser) {
         throw new Error("USER_NOT_FOUND");
       }
 
@@ -47,14 +59,17 @@ export async function POST(request: Request) {
           throw new Error("ITEM_NOT_FOUND");
         }
 
-        if (item.currentStock < line.quantity) {
-          throw new Error("OUT_OF_STOCK");
-        }
-
-        await tx.item.update({
-          where: { id: item.id },
+        const updatedCount = await tx.item.updateMany({
+          where: {
+            id: item.id,
+            currentStock: { gte: line.quantity },
+          },
           data: { currentStock: { decrement: line.quantity } },
         });
+
+        if (updatedCount.count === 0) {
+          throw new Error("OUT_OF_STOCK");
+        }
 
         await tx.consumption.create({
           data: {
@@ -71,7 +86,7 @@ export async function POST(request: Request) {
             itemId: item.id,
             type: StockMovementType.CONSUME,
             quantity: line.quantity,
-            byUserId: userId,
+            byUserId: actor.id,
           },
         });
 
@@ -84,6 +99,11 @@ export async function POST(request: Request) {
 
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
+    const authResponse = authErrorToResponse(error);
+    if (authResponse) {
+      return authResponse;
+    }
+
     if (error instanceof Error) {
       if (error.message === "USER_NOT_FOUND") {
         return NextResponse.json(

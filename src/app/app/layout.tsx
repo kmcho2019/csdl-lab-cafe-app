@@ -16,13 +16,15 @@ export default async function AppLayout({
     redirect("/api/auth/signin");
   }
 
-  const baseLinks = [{ href: "/app", label: "Dashboard" }] satisfies Array<{
+  const baseLinks = [
+    { href: "/app", label: "Dashboard" },
+    { href: "/app/kiosk", label: "Kiosk" },
+  ] satisfies Array<{
     href: Route;
     label: string;
   }>;
   const adminLinks = [
     { href: "/app/inventory", label: "Inventory" },
-    { href: "/app/kiosk", label: "Kiosk" },
     { href: "/app/users", label: "People" },
     { href: "/app/ledger", label: "Ledger" },
     { href: "/app/settlements", label: "Settlements" },

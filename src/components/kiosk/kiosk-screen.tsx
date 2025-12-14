@@ -27,14 +27,18 @@ type CartLine = {
 };
 
 type KioskScreenProps = {
-  users: KioskUser[];
   items: KioskItem[];
+  users: KioskUser[];
+  currentUser: KioskUser;
+  allowUserSelection: boolean;
 };
 
 type Message = { type: "success" | "error"; text: string } | null;
 
-export function KioskScreen({ users, items }: KioskScreenProps) {
-  const [selectedUserId, setSelectedUserId] = useState<string>("");
+export function KioskScreen({ users, items, currentUser, allowUserSelection }: KioskScreenProps) {
+  const [selectedUserId, setSelectedUserId] = useState<string>(
+    allowUserSelection ? "" : currentUser.id,
+  );
   const [cart, setCart] = useState<CartLine[]>([]);
   const [message, setMessage] = useState<Message>(null);
 
@@ -127,29 +131,41 @@ export function KioskScreen({ users, items }: KioskScreenProps) {
       )}
 
       <section className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900" id="kiosk-member-heading">
-          Select member
-        </h2>
-        <label htmlFor="kiosk-member" className="sr-only">
-          Select member
-        </label>
-        <select
-          id="kiosk-member"
-          aria-labelledby="kiosk-member-heading"
-          className="mt-3 w-full rounded border border-slate-200 px-3 py-2 text-sm focus:border-brand focus:outline-none"
-          value={selectedUserId}
-          onChange={(event) => {
-            setSelectedUserId(event.target.value);
-            setMessage(null);
-          }}
-        >
-          <option value="">Choose a member…</option>
-          {users.map((user) => (
-            <option key={user.id} value={user.id}>
-              {user.label}
-            </option>
-          ))}
-        </select>
+        {allowUserSelection ? (
+          <>
+            <h2 className="text-lg font-semibold text-slate-900" id="kiosk-member-heading">
+              Select member
+            </h2>
+            <label htmlFor="kiosk-member" className="sr-only">
+              Select member
+            </label>
+            <select
+              id="kiosk-member"
+              aria-labelledby="kiosk-member-heading"
+              className="mt-3 w-full rounded border border-slate-200 px-3 py-2 text-sm focus:border-brand focus:outline-none"
+              value={selectedUserId}
+              onChange={(event) => {
+                setSelectedUserId(event.target.value);
+                setMessage(null);
+              }}
+            >
+              <option value="">Choose a member…</option>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.label}
+                </option>
+              ))}
+            </select>
+          </>
+        ) : (
+          <>
+            <h2 className="text-lg font-semibold text-slate-900">Purchasing for</h2>
+            <p className="mt-2 text-sm text-slate-600">
+              {currentUser.label}
+            </p>
+            <p className="mt-1 text-xs text-slate-500">Only admins can charge items to someone else.</p>
+          </>
+        )}
       </section>
 
       <div className="grid gap-6 lg:grid-cols-3">

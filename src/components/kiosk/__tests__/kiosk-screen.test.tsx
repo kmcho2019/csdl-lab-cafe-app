@@ -56,7 +56,12 @@ describe("KioskScreen", () => {
   function renderKiosk() {
     return render(
       <QueryClientProvider client={queryClient}>
-        <KioskScreen users={users} items={items} />
+        <KioskScreen
+          users={users}
+          items={items}
+          currentUser={users[0]}
+          allowUserSelection
+        />
       </QueryClientProvider>,
     );
   }
@@ -88,5 +93,30 @@ describe("KioskScreen", () => {
 
     await waitFor(() => expect(screen.getByText(/Recorded purchase/)).toBeInTheDocument());
   });
-});
 
+  it("locks member selection when configured", async () => {
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ totalCents: 350, currency: "KRW" }),
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <KioskScreen
+          users={users}
+          items={items}
+          currentUser={users[1]}
+          allowUserSelection={false}
+        />
+      </QueryClientProvider>,
+    );
+
+    expect(screen.queryByLabelText(/Select member/i)).not.toBeInTheDocument();
+    fireEvent.click(screen.getByText(/Cold Brew/i));
+    fireEvent.click(screen.getByRole("button", { name: /record purchase/i }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    const body = JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string);
+    expect(body.userId).toBe("user-2");
+  });
+});

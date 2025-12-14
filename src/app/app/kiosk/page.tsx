@@ -1,4 +1,3 @@
-import { Role } from "@prisma/client";
 import { redirect } from "next/navigation";
 
 import { KioskScreen } from "@/components/kiosk/kiosk-screen";
@@ -11,16 +10,16 @@ export default async function KioskPage() {
     redirect("/api/auth/signin");
   }
 
-  if (session.user.role !== Role.ADMIN) {
-    redirect("/app");
-  }
+  const allowUserSelection = session.user.role === "ADMIN";
 
   const [users, items] = await Promise.all([
-    prisma.user.findMany({
-      where: { isActive: true },
-      select: { id: true, name: true, email: true },
-      orderBy: [{ name: "asc" }, { email: "asc" }],
-    }),
+    allowUserSelection
+      ? prisma.user.findMany({
+          where: { isActive: true },
+          select: { id: true, name: true, email: true },
+          orderBy: [{ name: "asc" }, { email: "asc" }],
+        })
+      : Promise.resolve([]),
     prisma.item.findMany({
       where: { isActive: true },
       orderBy: [{ category: "asc" }, { name: "asc" }],
@@ -37,8 +36,19 @@ export default async function KioskPage() {
     }),
   ]);
 
+  const currentUserLabel = session.user.name
+    ? session.user.email
+      ? `${session.user.name} (${session.user.email})`
+      : session.user.name
+    : session.user.email ?? "Current user";
+
   return (
     <KioskScreen
+      currentUser={{
+        id: session.user.id,
+        label: currentUserLabel,
+      }}
+      allowUserSelection={allowUserSelection}
       users={users.map((user) => ({
         id: user.id,
         label: user.name ? `${user.name} (${user.email})` : user.email,
@@ -56,4 +66,3 @@ export default async function KioskPage() {
     />
   );
 }
-
