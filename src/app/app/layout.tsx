@@ -25,6 +25,7 @@ export default async function AppLayout({
   }>;
   const adminLinks = [
     { href: "/app/inventory", label: "Inventory" },
+    { href: "/app/analytics", label: "Analytics" },
     { href: "/app/users", label: "People" },
     { href: "/app/ledger", label: "Ledger" },
     { href: "/app/settlements", label: "Settlements" },
