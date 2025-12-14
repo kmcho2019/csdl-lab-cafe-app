@@ -17,6 +17,7 @@ The fastest fixes for the issues you are most likely to encounter while operatin
 | --- | --- |
 | Prisma error “authentication failed for user” | Remove quotes from `POSTGRES_*` values, run `docker compose down --volumes`, and bring the stack back up so the database is reinitialised with the new password. |
 | `DATABASE_URL` missing or incorrect | Verify `.env` exists, run `npm run dev` again (Next.js loads env only at boot), and double-check interpolation in `src/lib/env.ts`. |
+| `docker: command not found` (or `docker compose` missing) | Expected inside the VS Code devcontainer; run `npx prisma ...` commands in the container and run Compose commands from your host terminal. See `docs/DEVCONTAINER.md`. |
 | `pg_isready` healthcheck fails repeatedly | Another process may be bound to port 5432. Stop local Postgres installs or change `POSTGRES_PORT` + `DATABASE_URL` accordingly. |
 
 ## Inventory & Consumption

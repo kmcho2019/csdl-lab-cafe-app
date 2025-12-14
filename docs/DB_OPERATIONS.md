@@ -35,6 +35,25 @@ docker compose run --rm web npx prisma studio
 
 Studio respects the same `.env` values and is handy for small edits.
 
+### 1.4 From a VS Code Dev Container
+
+If you are developing inside the devcontainer (`.devcontainer/`):
+
+- You generally won’t have the `docker` CLI available inside the container.
+- Postgres is reachable from the app container at `db:5432` (using the same `POSTGRES_*` defaults).
+
+Useful devcontainer-friendly tools:
+
+```bash
+# Apply schema (no docker needed)
+npx prisma db push
+
+# Prisma Studio (forward port 5555 in VS Code)
+npx prisma studio --hostname 0.0.0.0 --port 5555
+```
+
+For DB resets and demo seeding in the devcontainer, see `docs/DEVCONTAINER.md`.
+
 ## 2. Everyday Queries
 
 ### 2.1 Allowlist entries

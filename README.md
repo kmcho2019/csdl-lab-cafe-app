@@ -207,9 +207,11 @@ Common dockerised workflows:
 1. Install Docker and the VS Code Dev Containers extension.
 2. Open this repository in VS Code and run `Dev Containers: Reopen in Container`.
 3. Wait for the build to finish; the container runs `npm install` and `npm run prisma:generate` automatically.
-4. Run `npm run prisma:migrate` (or `npm run db:push`) inside the container to sync the schema.
-5. Start the dev server with `npm run dev` and browse at http://localhost:3000.
+4. Apply the schema inside the container with `npx prisma db push` (or `npx prisma migrate dev` if you prefer migrations).
+5. Start the dev server with `npm run dev -- --hostname 0.0.0.0` and browse at http://localhost:3000 (via port-forwarding).
 6. Use `npm run lint` and `npm run test` for quick checks; Postgres is reachable at `postgresql://postgres:postgres@db:5432/lab_cafe`.
+
+See `docs/DEVCONTAINER.md` for devcontainer-specific DB reset, demo seeding, and Prisma Studio tips.
 
 The app boots with:
 - **App router** Next.js 15 + React Server Components.

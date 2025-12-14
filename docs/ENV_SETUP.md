@@ -40,6 +40,9 @@ Store real secrets in a secure vault and share with the team through encrypted c
 3. Optionally add your email domain to `ALLOWLIST_DOMAINS` so everyone can sign in immediately.
 4. Start the stack (`docker compose up -d db`) and run migrations (`docker compose run --rm web npx prisma db push`).
 
+Devcontainer note:
+- The VS Code Dev Container uses the same `.env` file, and the default `POSTGRES_HOST=db` is correct there. See `docs/DEVCONTAINER.md` for the container-first workflow (including DB resets and demo seeding).
+
 ## 5. Verifying values
 
 - `cat .env` to inspect the file.

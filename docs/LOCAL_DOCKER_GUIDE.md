@@ -2,6 +2,8 @@
 
 This walkthrough shows how to run Lab Cafe Hub on Windows using WSL2 (Ubuntu) and Docker Desktop. By the end you will be able to record a snack purchase, restock an item, and inspect the ledger.
 
+If you are developing inside a VS Code Dev Container instead, use `docs/DEVCONTAINER.md` (it covers the container-first workflow, DB resets, and demo seeding without requiring `docker` inside the container).
+
 ## 1. Prerequisites
 
 - **Docker Desktop** with WSL2 integration enabled (Settings → Resources → WSL Integration → Ubuntu).

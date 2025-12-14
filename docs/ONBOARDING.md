@@ -10,7 +10,9 @@ Use this checklist when spinning up Lab Cafe Hub for the first time or handing t
    - `NEXTAUTH_SECRET` (generate with `openssl rand -base64 32`).
    - `GITHUB_ID` / `GITHUB_SECRET` from your GitHub OAuth app.
    - Optional: add your lab domain to `ALLOWLIST_DOMAINS`.
-4. Start Postgres: `docker compose up -d db`.
+4. Start Postgres:
+   - Docker Compose: `docker compose up -d db`
+   - VS Code Dev Container: Postgres starts automatically; see `docs/DEVCONTAINER.md`
 5. Apply the schema: `npx prisma db push` (or `docker compose run --rm web npx prisma db push`).
 6. Optional seed data:
    - Minimal: `npx prisma db seed` (sample items, allowlist domains, opening ledger balance).
