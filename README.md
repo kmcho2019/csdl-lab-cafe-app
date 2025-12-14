@@ -32,7 +32,7 @@ A lightweight web app to manage a lab's snack/drink cafe: track inventory, recor
 - All member features.
 - **Inventory:** add/edit items; restock; write-off (expiry/damage); price changes with history.
 - **Menu builder:** add new items with price and initial stock directly from the UI.
-- **Kiosk mode:** tablet-friendly cart where admins can pick a member, tap items, and record purchases in one checkout.
+- **Kiosk mode:** tablet-friendly cart where members can self-checkout and admins can charge any active member.
 - **Users:** add/promote/demote; archive (freeze) leavers; email/domain allowlist.
 - **People console:** invite members (name/email/GitHub id), promote to admin, freeze/reactivate accounts.
 - **Settlements:** preview → finalize → export CSV/Excel; optional email notices.
@@ -175,7 +175,9 @@ See `SECURITY.md` for details.
 4. Start Postgres: `docker compose up -d db` (wait for "healthy" status).
 5. Install dependencies in the web container: `docker compose run --rm web npm install`.
 6. Apply the Prisma schema: `docker compose run --rm web npx prisma db push`.
-7. Seed demo data (optional): `docker compose run --rm web npx prisma db seed`.
+7. Seed demo data (optional):
+   - Minimal seed: `docker compose run --rm web npx prisma db seed`
+   - Full demo dataset (members, menu, multi-month transactions): `docker compose run --rm web DEMO_SEED=1 npx prisma db seed`
 8. Launch the app: `docker compose up web` (or `docker compose up` for both services). Visit http://localhost:3000.
 9. Stop containers with `docker compose down` when finished.
 
@@ -193,7 +195,9 @@ Common dockerised workflows:
 3. Start Postgres: `docker compose up -d db`.
 4. `npm install`
 5. `npm run prisma:migrate` (or `npx prisma db push` during prototyping)
-6. (optional) `npx prisma db seed`
+6. (optional) Seed data:
+   - Minimal: `npx prisma db seed`
+   - Full demo dataset: `DEMO_SEED=1 npx prisma db seed`
 7. `npm run dev` and open http://localhost:3000
 8. `npm run test` (and `npm run lint`) keep the project healthy
 9. `npm run typecheck` and `npm run build` should run clean before submitting changes

@@ -16,12 +16,12 @@ This document describes the current state of Lab Cafe Hub as shipped in this rep
 | ------------------------ | ------ | -------------------- |
 | **Auth Agent**           | ✅     | GitHub OAuth with allowlist validation in `src/server/auth/options.ts`. Sessions are JWT-based and include role/isActive flags. |
 | **Inventory Agent**      | ✅     | `/app/inventory` UI drives `/api/items` + `/api/items/:id/{restock,writeoff}` endpoints. Stock movements recorded with audit-friendly metadata. |
-| **Settlement Agent**     | 🚧     | Schemas and listing UI exist (`/app/settlements`), but draft/finalize flows still require manual SQL or scripts. See `SETTLEMENTS.md` for the intended lifecycle. |
+| **Settlement Agent**     | ✅     | `/app/settlements` supports monthly draft creation, CSV preview/export, and finalization (locks consumptions + writes `SettlementLine`). Payments/void tooling is still pending. |
 | **Ledger Agent**         | ✅     | Ledger entries surface at `/app/ledger`; restock/write-off APIs optionally post balancing entries. Manual inserts supported through SQL or Prisma. |
 | **Ordering Agent**       | ⏳     | Purchase order tables exist; UI and API wiring are not yet implemented. |
-| **Analytics Agent**      | ⏳     | Low stock messaging appears inline; full reports/exports still pending. |
+| **Analytics Agent**      | 🚧     | Admin analytics page at `/app/analytics` shows popularity rankings and stock trend sparklines with low-stock highlighting. |
 | **Notification Agent**   | ⏳     | Email templates and SMTP variables reserved; final delivery queue not yet wired. |
-| **Kiosk checkout**       | ✅     | `/app/kiosk` cart drives `/api/kiosk/checkout`, recording multi-item consumptions per member on shared tablets. |
+| **Kiosk checkout**       | ✅     | `/app/kiosk` supports member self-checkout (locked to own tab) and admin multi-user checkout via `/api/kiosk/checkout`. |
 
 Legend: ✅ complete · 🚧 usable but missing pieces · ⏳ planned / not started.
 
@@ -45,9 +45,9 @@ Legend: ✅ complete · 🚧 usable but missing pieces · ⏳ planned / not star
 
 ## Known Gaps & Next Steps
 
-1. **Settlement operations** – Build server actions/API routes for draft → finalize → export, plus UI on `/app/settlements`.
+1. **Settlement payments/void** – Add payment recording UI and safe void/re-open flows (with audit trail).
 2. **Ledger exports** – Implement CSV downloads and pagination for historical entries.
-3. **Analytics & notifications** – Wire up popularity/low stock reports and SMTP-based reminder emails.
-4. **Automated tests** – Extend Vitest coverage to API handlers and UI flows beyond the current unit suite.
+3. **Analytics & notifications** – Add richer charts and wire SMTP-based reminder emails.
+4. **Automated tests** – Extend Vitest coverage to API handlers and cross-feature workflows.
 
 Use this overview when planning new work: it clarifies which pieces are production-ready and which still rely on manual steps.

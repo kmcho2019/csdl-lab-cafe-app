@@ -26,11 +26,13 @@ PATCH /api/admin/users/clxy123
 - `GET /items?active=true`
 - `POST /items` **(admin)**
 - `PATCH /items/:id` **(admin)** — update name, price, category, unit, or low-stock threshold.
-- `POST /items/:id/restock` **(admin)** — `{ qty, unitCost, note? }`
-- `POST /items/:id/writeoff` **(admin)** — `{ qty, reason }`
+- `POST /items/:id/restock` **(admin)** — `{ quantity, unitCostCents?, note?, ledgerDescription? }`
+- `POST /items/:id/writeoff` **(admin)** — `{ quantity, reason?, recordLedger?, ledgerDescription? }`
 
 ## Kiosk
-- `POST /kiosk/checkout` **(admin)** — `{ userId, cart: [{ itemId, quantity }] }`
+- `POST /kiosk/checkout` — `{ userId, cart: [{ itemId, quantity }] }`
+  - **Admins** may charge any active member.
+  - **Members** may only charge themselves (server-enforced).
 
 ## Consumption
 - `POST /consumptions` — `{ itemId, quantity=1 }`
@@ -44,13 +46,11 @@ POST /api/consumptions
 ```
 
 ## Settlements
-- `POST /settlements` **(admin)** — `{ startDate, endDate }` → DRAFT
-- `GET /settlements/:id` **(admin)** — details + preview
-- `POST /settlements/:id/finalize` **(admin)**
-- `POST /settlements/:id/void` **(admin)**
-- `GET /settlements/:id/export?format=csv|xlsx` **(admin)**
-- `GET /settlements` **(admin)** — list, filter by status/date
-- `POST /settlements/:id/payments` **(admin)** — record payment for a user
+- `GET /settlements` **(admin)** — list recent settlements.
+- `POST /settlements` **(admin)** — `{ month: "YYYY-MM", notes? }` → DRAFT
+- `POST /settlements/:id/finalize` **(admin)** — locks eligible consumptions and writes `SettlementLine` rollups.
+- `GET /settlements/:id/export?format=csv` **(admin)** — per-member monthly accounting export (drafts export a preview).
+- (Planned) `POST /settlements/:id/void`, `POST /settlements/:id/payments`, and detailed preview endpoints.
 
 ## Ledger
 - `GET /ledger` **(admin)** — list entries (with running balance).

@@ -27,12 +27,11 @@
 - A member may pay partial amounts; `Payment` rows accumulate.
 
 ## Exports
-- CSV/Excel include:
-  - Header with date range, settlement number, generation timestamp.
-  - Per-user rows: `User, Items, Total (minor units), Bank memo (e.g., "Cafe 2025-01 — 2025-02")`.
+- CSV exports include:
+  - Per-user rows with `settlementNumber`, `startDate`, `endDate`, totals, and a bank memo string (e.g., `Cafe 2025-01`).
+  - A human-readable breakdown column (e.g., `Cold Brew x2; Energy Bar x1`) for quick review.
 - Transaction-level export is also available for auditing.
 
 ## Emails (optional)
 - On finalize, send each member a link to their statement + amount due.
 - Reminder emails can be scheduled (e.g., T+7 days for unpaid balances).
-

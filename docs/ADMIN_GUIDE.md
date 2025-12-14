@@ -69,12 +69,20 @@ Attempting to write off more than the current stock returns an error and leaves 
 
 ## 3. Settlements & Member Tabs
 
-The `/app/settlements` page lists the ten most recent settlements with counts and statuses. Creation/finalisation flows are being built; in the interim:
-- Draft a settlement by inserting into `Settlement` and `SettlementLine` using SQL or Prisma scripts.
-- Associate consumptions by setting `settlementId` once you have confirmed totals.
-- Record payments in `Payment` and mirror them in the ledger as `RECEIPT` entries.
+Settlements are how you close a period, lock the included consumptions, and export a per-member billing file.
 
-See [SETTLEMENTS.md](../SETTLEMENTS.md) for the canonical lifecycle and business rules.
+### 3.1 Monthly workflow (recommended)
+1. Visit `/app/settlements`.
+2. Create a **draft** for the month you want to bill.
+3. Download the **preview CSV** to sanity-check totals without locking anything.
+4. Click **Finalize** once you are ready to close the month. This assigns `settlementId` to eligible consumptions and writes per-user `SettlementLine` rollups.
+5. Download the finalized CSV and share it with members (or your finance tracker).
+
+### 3.2 Notes
+- Draft exports are previews: they include consumptions in the range that still have `settlementId = NULL`.
+- Finalized exports are stable: they read from `SettlementLine` and stay unchanged even if item prices change later.
+
+See [SETTLEMENTS.md](../SETTLEMENTS.md) for lifecycle rules and correction guidance.
 
 ## 4. Ledger Maintenance
 
@@ -92,10 +100,13 @@ See [SETTLEMENTS.md](../SETTLEMENTS.md) for the canonical lifecycle and business
 
 ## 5. Analytics & Alerts
 
-Automated analytics are in progress. Today you can:
-- Query low stock items: `SELECT name, "currentStock", "lowStockThreshold" FROM "Item" WHERE "currentStock" <= "lowStockThreshold";`
-- Compute popularity: `SELECT i.name, SUM(c.quantity) FROM "Consumption" c JOIN "Item" i ON c."itemId" = i.id GROUP BY i.name ORDER BY SUM(c.quantity) DESC;`
-- Export consumptions or ledger data with `npm run prisma studio` or direct SQL for quick CSV output.
+Visit `/app/analytics` to see:
+- **Popularity** rankings over the selected time window.
+- **Stock trend** sparklines per item with low/out-of-stock highlighting.
+
+For deeper or custom reports you can still use SQL, for example:
+- Low stock items: `SELECT name, "currentStock", "lowStockThreshold" FROM "Item" WHERE "currentStock" <= "lowStockThreshold";`
+- Popularity: `SELECT i.name, SUM(c.quantity) FROM "Consumption" c JOIN "Item" i ON c."itemId" = i.id GROUP BY i.name ORDER BY SUM(c.quantity) DESC;`
 
 ## 6. Backups & Disaster Recovery
 
@@ -128,7 +139,8 @@ Lab Cafe Hub should now feel routine: record stock movements promptly, close set
 
 ## 8. Kiosk Mode
 
-- `/app/kiosk` offers a tablet-ready interface. Choose a member from the dropdown, tap items to add them to the cart, and press **Record purchase** to post the consumptions and stock movements in one go.
+- `/app/kiosk` offers a tablet-ready interface. Tap items to add them to the cart, then press **Record purchase** to post the consumptions and stock movements in one go.
+- **Members** can use kiosk mode, but can only charge items to their own tab.
+- **Admins** can select any active member from the dropdown (useful on shared tablets).
 - The cart respects realtime stock counts and returns an error if items are out of stock.
 - Clear the cart between visits with the **Clear cart** button.
-- Kiosk mode requires an admin session—open the page, sign in as an admin, and hand the tablet to the queue.

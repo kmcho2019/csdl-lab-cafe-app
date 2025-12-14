@@ -12,7 +12,9 @@ Use this checklist when spinning up Lab Cafe Hub for the first time or handing t
    - Optional: add your lab domain to `ALLOWLIST_DOMAINS`.
 4. Start Postgres: `docker compose up -d db`.
 5. Apply the schema: `npx prisma db push` (or `docker compose run --rm web npx prisma db push`).
-6. Optional demo data: `npm run db:seed` to create sample items, allowlist domains, and an opening ledger balance.
+6. Optional seed data:
+   - Minimal: `npx prisma db seed` (sample items, allowlist domains, opening ledger balance).
+   - Full demo dataset: `DEMO_SEED=1 npx prisma db seed` (adds more members/items plus multi-month transactions for testing kiosk, analytics, and settlements).
 7. Start the dev server: `npm run dev` or `docker compose up web`.
 
 ## 2. Create your admin account
