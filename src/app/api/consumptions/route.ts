@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { requireSession } from "@/server/auth/guards";
+import { authErrorToResponse } from "@/server/auth/http";
 import { prisma } from "@/server/db/client";
 
 const consumptionSchema = z.object({
@@ -11,38 +12,39 @@ const consumptionSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const session = await requireSession();
-  const user = session.user!;
-
-  const parsed = consumptionSchema.safeParse(await request.json());
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: { code: "INVALID_BODY", details: parsed.error.flatten() } },
-      { status: 400 },
-    );
-  }
-
-  const { itemId, quantity } = parsed.data;
-
-  const item = await prisma.item.findFirst({
-    where: { id: itemId, isActive: true },
-  });
-
-  if (!item) {
-    return NextResponse.json(
-      { error: { code: "NOT_FOUND", message: "Item not found or inactive" } },
-      { status: 404 },
-    );
-  }
-
-  if (quantity <= 0) {
-    return NextResponse.json(
-      { error: { code: "INVALID_QUANTITY", message: "Quantity must be positive" } },
-      { status: 400 },
-    );
-  }
-
   try {
+    const session = await requireSession();
+    const user = session.user!;
+
+    const body = await request.json().catch(() => null);
+    const parsed = consumptionSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: { code: "INVALID_BODY", details: parsed.error.flatten() } },
+        { status: 400 },
+      );
+    }
+
+    const { itemId, quantity } = parsed.data;
+
+    const item = await prisma.item.findFirst({
+      where: { id: itemId, isActive: true },
+    });
+
+    if (!item) {
+      return NextResponse.json(
+        { error: { code: "NOT_FOUND", message: "Item not found or inactive" } },
+        { status: 404 },
+      );
+    }
+
+    if (quantity <= 0) {
+      return NextResponse.json(
+        { error: { code: "INVALID_QUANTITY", message: "Quantity must be positive" } },
+        { status: 400 },
+      );
+    }
+
     const result = await prisma.$transaction(async (tx) => {
       const updatedCount = await tx.item.updateMany({
         where: {
@@ -93,6 +95,11 @@ export async function POST(request: Request) {
       newStock: result.newStock,
     });
   } catch (error) {
+    const authResponse = authErrorToResponse(error);
+    if (authResponse) {
+      return authResponse;
+    }
+
     if (error instanceof Error && error.message === "OUT_OF_STOCK") {
       return NextResponse.json(
         { error: { code: "OUT_OF_STOCK", message: "Not enough stock to fulfill request" } },

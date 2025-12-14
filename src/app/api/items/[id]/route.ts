@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { requireAdmin } from "@/server/auth/guards";
+import { authErrorToResponse } from "@/server/auth/http";
 import { prisma } from "@/server/db/client";
 
 const updateItemSchema = z
@@ -20,22 +21,22 @@ export async function PATCH(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
-  await requireAdmin();
-
-  const { id } = await context.params;
-  const body = await request.json().catch(() => null);
-  const parsed = updateItemSchema.safeParse(body);
-
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: { code: "INVALID_BODY", details: parsed.error.flatten() } },
-      { status: 400 },
-    );
-  }
-
-  const updates = parsed.data;
-
   try {
+    await requireAdmin();
+
+    const { id } = await context.params;
+    const body = await request.json().catch(() => null);
+    const parsed = updateItemSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: { code: "INVALID_BODY", details: parsed.error.flatten() } },
+        { status: 400 },
+      );
+    }
+
+    const updates = parsed.data;
+
     const updated = await prisma.$transaction(async (tx) => {
       const existing = await tx.item.findUnique({
         where: { id },
@@ -94,6 +95,11 @@ export async function PATCH(
 
     return NextResponse.json({ item: updated });
   } catch (error) {
+    const authResponse = authErrorToResponse(error);
+    if (authResponse) {
+      return authResponse;
+    }
+
     console.error(error);
     return NextResponse.json(
       { error: { code: "SERVER_ERROR", message: "Unable to update item" } },
