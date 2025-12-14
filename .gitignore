@@ -7,3 +7,6 @@ dist
 .env*.local
 .prisma
 .DS_Store
+*.tsbuildinfo
+lab-cafe-backup.sql
+old.next*
