@@ -40,7 +40,8 @@ Use this checklist when spinning up Lab Cafe Hub for the first time or handing t
 1. Open `/app/users`.
 2. Use **Add lab member** to enter their name, email, and (optionally) GitHub numeric ID.
 3. Tick **Start as admin** for co-treasurers.
-4. Submit—the email is added to the allowlist and a `User` row is ready for OAuth sign-in.
+4. Submit—the email is added to the allowlist and a `User` row is created.
+5. On their first GitHub sign-in, the OAuth account is automatically linked to that existing user (no manual `Account` SQL needed).
 
 ### 3.2 Add inventory
 

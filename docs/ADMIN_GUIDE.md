@@ -13,6 +13,7 @@ This guide expands on the README for day-to-day stewardship of the lab cafe: man
 ### 1.1 Sign-in flow
 - Members sign in at `http://<host>/app` using GitHub OAuth.
 - Only emails/domains in the allowlist may complete sign-in. The allowlist is evaluated case-insensitively and supports both full emails and bare domains.
+- If a matching `User` row already exists (seeded/imported/created via **People**), the first successful GitHub sign-in will automatically link the OAuth `Account` to that existing user.
 
 ### 1.2 Managing the allowlist
 - Visit **People** (`/app/users`).

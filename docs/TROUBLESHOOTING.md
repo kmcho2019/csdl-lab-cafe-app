@@ -7,7 +7,7 @@ The fastest fixes for the issues you are most likely to encounter while operatin
 | Symptom | Fix |
 | --- | --- |
 | GitHub login fails with `Invalid Compact JWE` | Set `NEXTAUTH_SECRET` to a 32+ character value (no quotes) and restart the web container. Existing sessions will be invalidated. |
-| `OAuthAccountNotLinked` when a seeded user signs in | Insert a row into `Account` linking the OAuth provider to the user (see [DB_OPERATIONS.md](./DB_OPERATIONS.md)#3). |
+| `OAuthAccountNotLinked` after inviting/importing a user | The app should auto-link GitHub OAuth to an existing `User` on first sign-in. If it persists, confirm the email/domain is allowlisted and inspect `Account` for conflicting `provider='github'` + `providerAccountId` rows (see [DB_OPERATIONS.md](./DB_OPERATIONS.md)#3). |
 | User sees “Not allowed” | Confirm their email/domain is in `ALLOWLIST_DOMAINS` **or** `AllowlistEntry`, and that `User.isActive = true`. |
 | People form returns "Email or GitHub ID already exists" | The address or GitHub ID is already tied to another user. Search the table, reactivate the existing account, or clear the conflicting value before retrying. |
 

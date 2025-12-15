@@ -14,7 +14,7 @@ This document describes the current state of Lab Cafe Hub as shipped in this rep
 
 | Agent / Area             | Status | Implementation Notes |
 | ------------------------ | ------ | -------------------- |
-| **Auth Agent**           | ✅     | GitHub OAuth with allowlist validation in `src/server/auth/options.ts`. Sessions are JWT-based and include role/isActive flags. |
+| **Auth Agent**           | ✅     | GitHub OAuth with allowlist validation in `src/server/auth/options.ts`, plus automatic linking of GitHub accounts to pre-created users. Sessions are JWT-based and include role/isActive flags. |
 | **Inventory Agent**      | ✅     | `/app/inventory` UI drives `/api/items` + `/api/items/:id/{restock,writeoff}` endpoints. Stock movements recorded with audit-friendly metadata. |
 | **Settlement Agent**     | ✅     | `/app/settlements` supports monthly draft creation, CSV preview/export, and finalization (locks consumptions + writes `SettlementLine`). Payments/void tooling is still pending. |
 | **Ledger Agent**         | ✅     | Ledger entries surface at `/app/ledger`; restock/write-off APIs optionally post balancing entries. Manual inserts supported through SQL or Prisma. |

@@ -119,7 +119,8 @@ Browser ──(OAuth via GitHub)──> Next.js ── Prisma ──> Postgres
 ### Manage members
 1. Admin opens **People** and submits name/email (plus optional GitHub ID) for a new member.
 2. The system creates the `User`, allowlists the email, and (optionally) sets role `ADMIN`.
-3. Promote/demote and freeze/reactivate members via inline buttons; the API updates `role` and `isActive`.
+3. On first GitHub sign-in, the OAuth account is automatically linked to that existing user row.
+4. Promote/demote and freeze/reactivate members via inline buttons; the API updates `role` and `isActive`.
 
 ### Write-off (expiry/damage)
 - Admin records `WRITE_OFF` movement with reason (note). Stock decreases; optional **debit** in ledger (if you want to recognize as loss).

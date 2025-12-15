@@ -165,14 +165,22 @@ LIMIT 30;
 
 ## 3. Linking GitHub accounts after manual imports
 
-If you bulk-import users and want GitHub SSO to hit the existing row rather than creating a duplicate:
+The app will automatically link a GitHub OAuth sign-in to an existing `User` row when the GitHub email matches `User.email` (this is also how the **People** page works).
+
+If you bulk-import users and the GitHub email does **not** match the imported address (or you want to pre-link ahead of time), link via GitHub numeric ID:
 
 1. Look up the user id.
    ```sql
    SELECT id FROM "User" WHERE email = 'person@example.com';
    ```
 2. Ask the user for their GitHub numeric id (from `https://api.github.com/users/<username>`).
-3. Insert the Auth.js account link:
+3. Save it onto the user (so the next sign-in can link automatically):
+   ```sql
+   UPDATE "User"
+   SET "githubId" = '<github-id-from-step-2>'
+   WHERE email = 'person@example.com';
+   ```
+4. Optional: insert the Auth.js account link immediately (if you want the mapping in place before they sign in):
    ```sql
    INSERT INTO "Account" (
      id,
