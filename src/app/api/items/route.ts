@@ -1,4 +1,4 @@
-import { StockMovementType } from "@prisma/client";
+import { Role, StockMovementType } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -19,13 +19,18 @@ const createItemSchema = z.object({
 
 export async function GET(request: Request) {
   try {
-    await requireSession();
+    const session = await requireSession();
 
     const { searchParams } = new URL(request.url);
     const active = searchParams.get("active");
 
     const items = await prisma.item.findMany({
-      where: active == null ? {} : { isActive: active === "true" },
+      where:
+        session.user?.role === Role.ADMIN
+          ? active == null
+            ? {}
+            : { isActive: active === "true" }
+          : { isActive: true },
       orderBy: [{ isActive: "desc" }, { name: "asc" }],
     });
 

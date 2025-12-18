@@ -49,6 +49,11 @@ Visit `/app/inventory` and use **Add new item** to create menu entries (name, pr
 
 Need to adjust prices or categories later? Use the **Edit** drawer on each item to change name, price, category (including adding new categories), unit, or low-stock threshold without dropping to SQL.
 
+Phasing out an item? Lab Cafe Hub uses **archiving** instead of deletion:
+- Write off any remaining stock until the item reaches **0** on-hand.
+- Use the **Archive** action on the item card (requires typing the exact item name).
+- Archived items are hidden from members/kiosk, and can be restored with **Reactivate** from the collapsed Archived items section.
+
 ### 3.3 Configure ledger opening balance
 
 If the cafe already has funds on hand, record them:

@@ -68,6 +68,24 @@ Visit `/app/inventory` (admins only). The page lists items grouped by category a
 
 Attempting to write off more than the current stock returns an error and leaves counts unchanged.
 
+### 2.6 Archiving (phasing out) an item
+Instead of deleting menu items, Lab Cafe Hub supports **archiving**. Archived items are:
+- Hidden from members (not shown on `/app`) and kiosk checkout.
+- Kept in a collapsed **Archived items** section on `/app/inventory` for admins.
+- Reactivatable at any time.
+
+Safety rules:
+- You can only archive an item when its stock is **exactly 0**.
+- The UI requires typing the **exact item name** before the Archive button becomes enabled.
+
+Workflow:
+1. If the item has remaining stock, record a **Write-off** until stock reaches 0.
+2. Expand **Archive** on the item card and type the item name to confirm.
+3. The item moves to the **Archived items** section and becomes unavailable to members.
+4. To bring it back, open **Archived items** (collapsed by default) and click **Reactivate**.
+
+Audit trail: archiving and reactivating create `AuditLog` rows (`ITEM_ARCHIVED`, `ITEM_REACTIVATED`).
+
 ## 3. Settlements & Member Tabs
 
 Settlements are how you close a period, lock the included consumptions, and export a per-member billing file.

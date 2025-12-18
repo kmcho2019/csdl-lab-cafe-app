@@ -43,6 +43,13 @@ export async function POST(
       );
     }
 
+    if (!item.isActive) {
+      return NextResponse.json(
+        { error: { code: "ITEM_INACTIVE", message: "Reactivate the item before restocking it." } },
+        { status: 409 },
+      );
+    }
+
     const updated = await prisma.$transaction(async (tx) => {
       const newItem = await tx.item.update({
         where: { id: item.id },
