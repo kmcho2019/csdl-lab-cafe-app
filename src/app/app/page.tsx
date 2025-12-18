@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { ConsumptionHistory } from "@/components/consumptions/consumption-history";
 import { ItemsGrid } from "@/components/items/items-grid";
 import { formatCurrency } from "@/lib/currency";
 import { env } from "@/lib/env";
@@ -12,18 +13,21 @@ export default async function DashboardPage() {
     redirect("/api/auth/signin");
   }
 
-  const [items, openTab] = await Promise.all([
+  const [items, openTabConsumptions] = await Promise.all([
     prisma.item.findMany({
       where: { isActive: true },
       orderBy: [{ category: "asc" }, { name: "asc" }],
     }),
-    prisma.consumption.aggregate({
-      where: { userId: session.user.id, settlementId: null },
-      _sum: { priceAtTxCents: true },
+    prisma.consumption.findMany({
+      where: { userId: session.user.id, settlementId: null, reversedAt: null },
+      select: { priceAtTxCents: true, quantity: true },
     }),
   ]);
 
-  const openTabCents = openTab._sum.priceAtTxCents ?? 0;
+  const openTabCents = openTabConsumptions.reduce(
+    (sum, consumption) => sum + consumption.priceAtTxCents * consumption.quantity,
+    0,
+  );
 
   return (
     <div className="space-y-6">
@@ -53,6 +57,8 @@ export default async function DashboardPage() {
         }))}
         locale={env.APP_LOCALE}
       />
+
+      <ConsumptionHistory locale={env.APP_LOCALE} />
     </div>
   );
 }

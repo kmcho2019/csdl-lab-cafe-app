@@ -28,6 +28,8 @@ PATCH /api/admin/users/clxy123
 - `PATCH /items/:id` **(admin)** — update name, price, category, unit, or low-stock threshold.
 - `POST /items/:id/restock` **(admin)** — `{ quantity, unitCostCents?, note?, ledgerDescription? }`
 - `POST /items/:id/writeoff` **(admin)** — `{ quantity, reason?, recordLedger?, ledgerDescription? }`
+- `POST /items/:id/archive` **(admin)** — `{ confirmName }` (requires `currentStock = 0`)
+- `POST /items/:id/reactivate` **(admin)**
 
 ## Kiosk
 - `POST /kiosk/checkout` — `{ userId, cart: [{ itemId, quantity }] }`
@@ -36,13 +38,14 @@ PATCH /api/admin/users/clxy123
 
 ## Consumption
 - `POST /consumptions` — `{ itemId, quantity=1 }`
-- `GET /consumptions?userId&from&to&settled=false`
+- `GET /consumptions?limit=25&includeReversed=true&includeSettled=false` — lists your recent consumptions.
+- `POST /consumptions/:id/reverse` — `{ note? }` (ASCII, max 200 chars). Requires `settlementId = NULL`.
 
 ### Example
 ```http
 POST /api/consumptions
 { "itemId": "it_123", "quantity": 1 }
-→ 200 { "id": "tx_456", "priceAtTx": 150, "currency": "USD", "newStock": 11 }
+→ 200 { "consumption": { "id": "tx_456", "priceAtTxCents": 150, "currency": "USD" }, "newStock": 11 }
 ```
 
 ## Settlements
@@ -50,6 +53,7 @@ POST /api/consumptions
 - `POST /settlements` **(admin)** — `{ month: "YYYY-MM", notes? }` → DRAFT
 - `POST /settlements/:id/finalize` **(admin)** — locks eligible consumptions and writes `SettlementLine` rollups.
 - `GET /settlements/:id/export?format=csv` **(admin)** — per-member monthly accounting export (drafts export a preview).
+- `GET /settlements/:id/consumptions?limit=50&includeReversed=true` **(admin)** — list unsettled consumptions in the settlement window (used for draft corrections).
 - (Planned) `POST /settlements/:id/void`, `POST /settlements/:id/payments`, and detailed preview endpoints.
 
 ## Ledger

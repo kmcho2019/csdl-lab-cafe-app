@@ -66,9 +66,10 @@ VALUES (gen_random_uuid(), NOW(), 'Opening float', 75000, 'RECEIPT', 75000);
 
 1. From your member view (`/app`), click **Take one** to simulate grabbing a snack.
 2. Confirm the toast appears and the stock count decrements.
-3. Visit `/app/inventory` and `/app/ledger` to verify the stock movement and ledger entry.
-4. (Optional) Add another admin via the **People** page and confirm they can access admin sections.
-5. (Optional) Visit `/app/kiosk`, select a member, add a couple of items, and record the purchase to ensure the kiosk experience works on shared devices.
+3. (Optional) Use **Undo** on the success toast or the **Recent transactions** panel to reverse an accidental click (works until the monthly settlement is finalized).
+4. Visit `/app/inventory` and `/app/ledger` to verify the stock movement and ledger entry.
+5. (Optional) Add another admin via the **People** page and confirm they can access admin sections.
+6. (Optional) Visit `/app/kiosk`, select a member, add a couple of items, and record the purchase to ensure the kiosk experience works on shared devices.
 
 ## 5. Prepare for settlements
 

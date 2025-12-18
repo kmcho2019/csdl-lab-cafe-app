@@ -5,6 +5,8 @@ import { format } from "date-fns";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { SettlementCorrections } from "@/components/settlements/settlement-corrections";
+
 type SettlementStatus = "DRAFT" | "FINALIZED" | "VOID";
 
 type SettlementSummary = {
@@ -219,6 +221,8 @@ export function SettlementsManager({ initialSettlements }: { initialSettlements:
                   <div className="text-sm font-semibold text-slate-900">{settlement.counts.payments}</div>
                 </div>
               </div>
+
+              {isDraft && <SettlementCorrections settlementId={settlement.id} />}
             </article>
           );
         })}
@@ -231,4 +235,3 @@ export function SettlementsManager({ initialSettlements }: { initialSettlements:
     </div>
   );
 }
-

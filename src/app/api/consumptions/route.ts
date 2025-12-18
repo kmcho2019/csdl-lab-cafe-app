@@ -11,6 +11,72 @@ const consumptionSchema = z.object({
   quantity: z.coerce.number().int().positive().default(1),
 });
 
+const listConsumptionQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(200).default(25),
+  includeReversed: z.coerce.boolean().optional().default(true),
+  includeSettled: z.coerce.boolean().optional().default(false),
+});
+
+export async function GET(request: Request) {
+  try {
+    const session = await requireSession();
+    const user = session.user!;
+
+    const { searchParams } = new URL(request.url);
+    const parsedQuery = listConsumptionQuerySchema.safeParse({
+      limit: searchParams.get("limit"),
+      includeReversed: searchParams.get("includeReversed"),
+      includeSettled: searchParams.get("includeSettled"),
+    });
+
+    if (!parsedQuery.success) {
+      return NextResponse.json(
+        { error: { code: "INVALID_QUERY", details: parsedQuery.error.flatten() } },
+        { status: 400 },
+      );
+    }
+
+    const { limit, includeReversed, includeSettled } = parsedQuery.data;
+
+    const consumptions = await prisma.consumption.findMany({
+      where: {
+        userId: user.id,
+        ...(includeSettled ? {} : { settlementId: null }),
+        ...(includeReversed ? {} : { reversedAt: null }),
+      },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      include: {
+        item: { select: { id: true, name: true } },
+      },
+    });
+
+    return NextResponse.json({
+      consumptions: consumptions.map((consumption) => ({
+        id: consumption.id,
+        createdAt: consumption.createdAt.toISOString(),
+        item: consumption.item,
+        quantity: consumption.quantity,
+        priceAtTxCents: consumption.priceAtTxCents,
+        currency: consumption.currency,
+        settlementId: consumption.settlementId,
+        reversedAt: consumption.reversedAt?.toISOString() ?? null,
+      })),
+    });
+  } catch (error) {
+    const authResponse = authErrorToResponse(error);
+    if (authResponse) {
+      return authResponse;
+    }
+
+    console.error(error);
+    return NextResponse.json(
+      { error: { code: "SERVER_ERROR", message: "Could not load transactions." } },
+      { status: 500 },
+    );
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const session = await requireSession();

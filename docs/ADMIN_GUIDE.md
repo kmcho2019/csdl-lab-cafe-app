@@ -94,14 +94,29 @@ Settlements are how you close a period, lock the included consumptions, and expo
 1. Visit `/app/settlements`.
 2. Create a **draft** for the month you want to bill.
 3. Download the **preview CSV** to sanity-check totals without locking anything.
-4. Click **Finalize** once you are ready to close the month. This assigns `settlementId` to eligible consumptions and writes per-user `SettlementLine` rollups.
-5. Download the finalized CSV and share it with members (or your finance tracker).
+4. Review and correct mistakes (optional): expand **Corrections** on the draft settlement to reverse mistaken transactions before finalizing.
+5. Click **Finalize** once you are ready to close the month. This assigns `settlementId` to eligible consumptions and writes per-user `SettlementLine` rollups.
+6. Download the finalized CSV and share it with members (or your finance tracker).
 
 ### 3.2 Notes
 - Draft exports are previews: they include consumptions in the range that still have `settlementId = NULL`.
 - Finalized exports are stable: they read from `SettlementLine` and stay unchanged even if item prices change later.
 
 See [SETTLEMENTS.md](../SETTLEMENTS.md) for lifecycle rules and correction guidance.
+
+### 3.3 Reversing accidental transactions (corrections)
+Lab Cafe Hub supports reversing mistaken consumptions (mis-clicks, wrong member selected, etc.).
+
+Rules:
+- **Members** can only reverse their own transactions.
+- **Admins** can reverse transactions for any user (use the draft settlement **Corrections** panel).
+- Reversals are only allowed while the transaction is **unsettled** (`settlementId = NULL`). Once a settlement is finalized, included transactions cannot be changed.
+- An optional ASCII note (max 200 chars) can be added for audit context.
+
+What happens on reversal:
+- `Consumption.reversedAt` is set (so exports/settlements ignore it).
+- Stock is restored via `StockMovement(type=ADJUST, qty=...)`.
+- An `AuditLog` entry is created (`CONSUMPTION_REVERSED`).
 
 ## 4. Ledger Maintenance
 

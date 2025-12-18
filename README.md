@@ -101,6 +101,11 @@ Browser ──(OAuth via GitHub)──> Next.js ── Prisma ──> Postgres
 3. Create `StockMovement(type=CONSUME, qty=1)`; decrement `Item.currentStock` atomically.
 4. Update member tab view.
 
+### Reverse a transaction (mis-click)
+- Members can reverse their own **unsettled** consumptions from the dashboard (success toast “Undo” or **Recent transactions**).
+- Admins can reverse consumptions for any member during the draft settlement phase (see `/app/settlements` → **Corrections**).
+- Reversals set `Consumption.reversedAt`, restore stock via `StockMovement(type=ADJUST)`, and write an `AuditLog` entry (`CONSUMPTION_REVERSED`).
+
 ### Restock
 1. Admin clicks **Restock** on item, enters quantity and total cost (or unit cost).
 2. Create `PurchaseOrder` (optional) and `StockMovement(RESTOCK)`.

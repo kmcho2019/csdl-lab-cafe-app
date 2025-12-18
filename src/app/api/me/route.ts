@@ -11,10 +11,12 @@ export async function GET() {
     const session = await requireSession();
     const user = session.user!;
 
-    const tab = await prisma.consumption.aggregate({
-      where: { userId: user.id, settlementId: null },
-      _sum: { priceAtTxCents: true },
+    const consumptions = await prisma.consumption.findMany({
+      where: { userId: user.id, settlementId: null, reversedAt: null },
+      select: { priceAtTxCents: true, quantity: true },
     });
+
+    const openTabCents = consumptions.reduce((sum, consumption) => sum + consumption.priceAtTxCents * consumption.quantity, 0);
 
     return NextResponse.json({
       user: {
@@ -23,8 +25,8 @@ export async function GET() {
         email: session.user?.email,
         role: user.role,
         isActive: user.isActive,
-        openTabCents: tab._sum.priceAtTxCents ?? 0,
-        openTabFormatted: formatCurrency(tab._sum.priceAtTxCents ?? 0, env.APP_CURRENCY, {
+        openTabCents,
+        openTabFormatted: formatCurrency(openTabCents, env.APP_CURRENCY, {
           locale: env.APP_LOCALE,
         }),
         currency: env.APP_CURRENCY,

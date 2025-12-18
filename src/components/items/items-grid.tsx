@@ -21,13 +21,33 @@ type ConsumptionResponse = {
     id: string;
     priceAtTxCents: number;
     currency: string;
+    quantity: number;
   };
   newStock: number;
 };
+
+type ReverseConsumptionResponse = {
+  consumption: {
+    id: string;
+    reversedAt: string;
+  };
+  item: {
+    id: string;
+    currentStock: number;
+  };
+};
+
+type UndoState = {
+  consumptionId: string;
+  itemId: string;
+  quantity: number;
+} | null;
 export function ItemsGrid({ items, locale }: { items: Item[]; locale: string }) {
   const [inventory, setInventory] = useState(items);
   const [message, setMessage] = useState<string | null>(null);
   const [messageType, setMessageType] = useState<"success" | "error" | null>(null);
+  const [undo, setUndo] = useState<UndoState>(null);
+  const [undoNote, setUndoNote] = useState<string>("");
 
   const grouped = useMemo(() => {
     return inventory.reduce<Record<string, Item[]>>((acc, item) => {
@@ -57,6 +77,12 @@ export function ItemsGrid({ items, locale }: { items: Item[]; locale: string }) 
       setInventory((prev) =>
         prev.map((item) => (item.id === variables.itemId ? { ...item, currentStock: data.newStock } : item)),
       );
+      setUndo({
+        consumptionId: data.consumption.id,
+        itemId: variables.itemId,
+        quantity: data.consumption.quantity ?? variables.quantity,
+      });
+      setUndoNote("");
       setMessage(
         `Enjoy! ${formatCurrency(data.consumption.priceAtTxCents, data.consumption.currency, { locale })} recorded.`,
       );
@@ -68,13 +94,81 @@ export function ItemsGrid({ items, locale }: { items: Item[]; locale: string }) 
     },
   });
 
+  const reverseMutation = useMutation({
+    mutationFn: async ({ consumptionId, note }: { consumptionId: string; note?: string }) => {
+      const res = await fetch(`/api/consumptions/${consumptionId}/reverse`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ note }),
+      });
+
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null);
+        throw new Error(payload?.error?.message ?? "Unable to reverse transaction");
+      }
+
+      return (await res.json()) as ReverseConsumptionResponse;
+    },
+    onSuccess: (payload) => {
+      setInventory((prev) =>
+        prev.map((item) => (item.id === payload.item.id ? { ...item, currentStock: payload.item.currentStock } : item)),
+      );
+      setMessage("Transaction reversed. Stock restored.");
+      setMessageType("success");
+      setUndo(null);
+      setUndoNote("");
+    },
+    onError: (error: unknown) => {
+      setMessage(error instanceof Error ? error.message : "Unable to reverse transaction");
+      setMessageType("error");
+    },
+  });
+
   return (
     <div className="space-y-4">
       {message && (
         <div
           className={`rounded-lg border px-4 py-3 text-sm ${messageType === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-red-200 bg-red-50 text-red-700"}`}
         >
-          {message}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <span>{message}</span>
+            {undo && messageType === "success" && (
+              <details className="rounded-lg border border-emerald-200 bg-white px-3 py-2">
+                <summary className="cursor-pointer text-xs font-semibold text-emerald-700">
+                  Undo
+                </summary>
+                <form
+                  className="mt-3 flex flex-col gap-2"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    reverseMutation.mutate({
+                      consumptionId: undo.consumptionId,
+                      note: undoNote.trim() || undefined,
+                    });
+                  }}
+                >
+                  <label className="text-xs font-medium text-slate-600">
+                    Note (optional, ASCII, 200 chars)
+                    <input
+                      type="text"
+                      value={undoNote}
+                      maxLength={200}
+                      onChange={(event) => setUndoNote(event.target.value)}
+                      className="mt-1 w-full rounded border border-slate-200 px-2 py-1 text-sm"
+                      placeholder="Mis-click"
+                    />
+                  </label>
+                  <button
+                    type="submit"
+                    disabled={reverseMutation.isPending || consumeMutation.isPending}
+                    className="rounded bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:bg-slate-300"
+                  >
+                    {reverseMutation.isPending ? "Reversing..." : "Reverse transaction"}
+                  </button>
+                </form>
+              </details>
+            )}
+          </div>
         </div>
       )}
 
