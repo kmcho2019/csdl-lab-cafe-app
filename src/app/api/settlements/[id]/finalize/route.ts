@@ -6,13 +6,28 @@ import { authErrorToResponse } from "@/server/auth/http";
 import { prisma } from "@/server/db/client";
 import { computeSettlementPreviewLines } from "@/server/settlements/compute";
 
+function getRequestIp(request: Request) {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  if (forwardedFor) {
+    const first = forwardedFor.split(",")[0]?.trim();
+    if (first) {
+      return first;
+    }
+  }
+
+  const realIp = request.headers.get("x-real-ip")?.trim();
+  return realIp || null;
+}
+
 export async function POST(
-  _request: Request,
+  request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
   try {
-    await requireAdmin();
+    const session = await requireAdmin();
+    const actor = session.user!;
     const { id } = await context.params;
+    const ipAddress = getRequestIp(request);
 
     const result = await prisma.$transaction(async (tx) => {
       const settlement = await tx.settlement.findUnique({
@@ -87,13 +102,27 @@ export async function POST(
       const updated = await tx.settlement.update({
         where: { id: settlement.id },
         data: {
-          status: SettlementStatus.FINALIZED,
-          finalizedAt: new Date(),
+          status: SettlementStatus.BILLED,
         },
         include: {
           _count: {
             select: { consumptions: true, lines: true, payments: true },
           },
+        },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          actorId: actor.id,
+          action: "SETTLEMENT_BILLED",
+          entity: "Settlement",
+          entityId: settlement.id,
+          diff: {
+            settlementNumber: settlement.number,
+            consumptionCount: consumptions.length,
+            lineCount: previewLines.length,
+          },
+          ipAddress,
         },
       });
 
@@ -134,7 +163,7 @@ export async function POST(
           {
             error: {
               code: "INVALID_STATUS",
-              message: "Only draft settlements can be finalized.",
+              message: "Only draft settlements can have bills finalized.",
             },
           },
           { status: 409 },
@@ -161,4 +190,3 @@ export async function POST(
     );
   }
 }
-

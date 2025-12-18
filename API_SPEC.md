@@ -51,23 +51,39 @@ POST /api/consumptions
 ## Settlements
 - `GET /settlements` **(admin)** — list recent settlements.
 - `POST /settlements` **(admin)** — `{ month: "YYYY-MM", notes? }` → DRAFT
-- `POST /settlements/:id/finalize` **(admin)** — locks eligible consumptions and writes `SettlementLine` rollups.
-- `GET /settlements/:id/export?format=csv` **(admin)** — per-member monthly accounting export (drafts export a preview).
+- `GET /settlements/:id/preview` **(admin)** — draft-only UI preview (per-member totals + totals-by-item).
+- `POST /settlements/:id/finalize` **(admin)** — **finalize bills** (`DRAFT → BILLED`):
+  - assigns `settlementId` to eligible consumptions
+  - writes `SettlementLine` rollups for stable exports
+- `GET /settlements/:id/payments` **(admin)** — billed payment summary (due/paid per member).
+- `POST /settlements/:id/payments` **(admin)** — toggle paid/unpaid:
+  - `{ userId, isPaid, method?, reference? }`
+  - `reference` is ASCII, max 200 chars.
+- `POST /settlements/:id/complete` **(admin)** — **finalize settlement** (`BILLED → FINALIZED`):
+  - requires all members paid
+  - creates a `LedgerEntry(category=SETTLEMENT)` credit for the settlement total
+- `GET /settlements/:id/export?format=csv` **(admin)** — per-member accounting export (drafts export a preview; billed/finalized export from rollups).
 - `GET /settlements/:id/consumptions?limit=50&includeReversed=true` **(admin)** — list unsettled consumptions in the settlement window (used for draft corrections).
-- (Planned) `POST /settlements/:id/void`, `POST /settlements/:id/payments`, and detailed preview endpoints.
+
+## Admin transaction history
+- `GET /admin/transactions?limit=50&cursor=<id>&from=<iso>&to=<iso>&includeReversed=true` **(admin)** — paginated cross-member consumption history.
 
 ## Ledger
 - `GET /ledger` **(admin)** — list entries (with running balance).
-- `POST /ledger` **(admin)** — arbitrary entry `{ timestamp, description, amountCents, category }`
+- `POST /ledger` **(admin)** — manual entry `{ timestamp?, description, amountCents, category }`
+  - `description` is ASCII, max 200 chars.
+- `GET /ledger/summary?window=7d|30d|90d` **(admin)** — running balance series for charts.
 
 ## Reports
 - `GET /reports/low-stock` **(admin)**
 - `GET /reports/popularity?window=30d` **(admin)**
 
-## Purchase Orders (optional)
-- `POST /purchase-orders` **(admin)** — create order with lines
-- `GET /purchase-orders` **(admin)**
-- `POST /purchase-orders/:id/receive` **(admin)** — mark received; creates `RESTOCK` movements
+## Purchase Orders / Restocks
+- `GET /purchase-orders?limit=20&cursor=<id>` **(admin)** — list recent purchase orders.
+- `POST /purchase-orders` **(admin)** — record a received restock with one or more lines:
+  - `{ vendorName, purchaseChannel?, receiptPath?, comment?, miscCostCents?, miscComment?, lines: [{ itemId, quantity, unitCostCents }] }`
+  - `comment`, `receiptPath`, and `miscComment` are ASCII-bounded.
+  - Creates `PurchaseOrder`, `StockMovement(RESTOCK)` rows, and a `LedgerEntry(category=PURCHASE)` debit.
 
 ## Errors
 - Use standard HTTP codes. JSON:

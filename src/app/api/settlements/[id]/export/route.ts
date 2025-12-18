@@ -88,7 +88,7 @@ export async function GET(
 
     let lines: SettlementPreviewLine[];
 
-    if (settlement.status === SettlementStatus.FINALIZED && settlement.lines.length > 0) {
+    if ((settlement.status === SettlementStatus.FINALIZED || settlement.status === SettlementStatus.BILLED) && settlement.lines.length > 0) {
       lines = settlement.lines.map((line) => ({
         userId: line.userId,
         userName: line.user.name ?? "",
@@ -155,4 +155,3 @@ export async function GET(
     );
   }
 }
-

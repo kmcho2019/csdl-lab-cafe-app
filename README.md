@@ -35,9 +35,12 @@ A lightweight web app to manage a lab's snack/drink cafe: track inventory, recor
 - **Kiosk mode:** tablet-friendly cart where members can self-checkout and admins can charge any active member.
 - **Users:** add/promote/demote; archive (freeze) leavers; email/domain allowlist.
 - **People console:** invite members (name/email/GitHub id), promote to admin, freeze/reactivate accounts.
-- **Settlements:** preview → finalize → export CSV/Excel; optional email notices.
-- **Ledger:** purchases (debits) and receipts (credits); running balance.
-- **Orders:** optional purchase orders → receive stock → update ledger.
+- **Settlements:** draft → preview/corrections → finalize bills → payment tracking → finalize settlement → export CSV.
+- **Ledger:** purchases (debits) and receipts (credits); balance dashboard + trend graph; manual adjustments.
+- **Restocks:** centralized multi-item restocks (purchase orders) with margin warnings + receipt metadata; ledger outflow recorded automatically.
+- **Transactions:** time-filtered consumption history across all members (pagination + reversed toggle).
+- **Overview:** between-settlement summary (totals by item + by member).
+- **Orders:** purchase orders → receive stock → update ledger.
 - **Reports:** popularity, least/most consumed, low stock alerts.
 - **Data export:** transactions, settlements, and ledger as CSV/Excel.
 
@@ -82,10 +85,10 @@ Browser ──(OAuth via GitHub)──> Next.js ── Prisma ──> Postgres
 - **ItemPriceHistory**: snapshots for auditing and settlement calculations.
 - **Consumption**: member takes item; immutable priceAtTx + quantity; optional settlementId.
 - **StockMovement**: RESTOCK / WRITE_OFF / ADJUST / CONSUME (system) for auditability.
-- **Settlement**: period with status (DRAFT, FINALIZED, VOID); summary totals.
+- **Settlement**: period with status (DRAFT, BILLED, FINALIZED, VOID); summary totals.
 - **SettlementLine**: per-user totals cached at finalize time for export speed.
 - **LedgerEntry**: single‑entry ledger (+credit / –debit) with categories.
-- **Payment**: settlement payments recorded against users.
+- **Payment**: settlement payment tracking (admin checkbox workflow).
 - **PurchaseOrder & PurchaseOrderItem**: optional vendor/order tracking.
 - **AuditLog**: who did what, when, from where (ip).
 

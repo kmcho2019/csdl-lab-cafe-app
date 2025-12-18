@@ -2,6 +2,7 @@ import { Role } from "@prisma/client";
 import { redirect } from "next/navigation";
 
 import { SettlementsManager } from "@/components/settlements/settlements-manager";
+import { env } from "@/lib/env";
 import { getAuthSession } from "@/server/auth/session";
 import { prisma } from "@/server/db/client";
 
@@ -27,6 +28,8 @@ export default async function SettlementsPage() {
 
   return (
     <SettlementsManager
+      locale={env.APP_LOCALE}
+      currency={env.APP_CURRENCY}
       initialSettlements={settlements.map((settlement) => ({
         id: settlement.id,
         number: settlement.number,

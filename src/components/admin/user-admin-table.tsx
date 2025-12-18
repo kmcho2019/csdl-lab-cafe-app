@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { formatDistanceToNow } from "date-fns";
@@ -225,6 +226,12 @@ export function UserAdminTable({ currentUserId, users }: UserAdminTableProps) {
                   </td>
                   <td className="px-4 py-3 align-top text-right">
                     <div className="flex flex-wrap justify-end gap-2">
+                      <Link
+                        href={`/app/users/${user.id}`}
+                        className="rounded border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:border-brand hover:text-brand"
+                      >
+                        Report
+                      </Link>
                       <button
                         type="button"
                         disabled={pending || (user.role === "ADMIN" && isLastActiveAdmin)}

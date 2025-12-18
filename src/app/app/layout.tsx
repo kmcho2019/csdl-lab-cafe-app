@@ -18,6 +18,7 @@ export default async function AppLayout({
 
   const baseLinks = [
     { href: "/app", label: "Dashboard" },
+    { href: "/app/account", label: "Account" },
     { href: "/app/kiosk", label: "Kiosk" },
   ] satisfies Array<{
     href: Route;
@@ -25,6 +26,9 @@ export default async function AppLayout({
   }>;
   const adminLinks = [
     { href: "/app/inventory", label: "Inventory" },
+    { href: "/app/restocks", label: "Restocks" },
+    { href: "/app/transactions", label: "Transactions" },
+    { href: "/app/overview", label: "Overview" },
     { href: "/app/analytics", label: "Analytics" },
     { href: "/app/users", label: "People" },
     { href: "/app/ledger", label: "Ledger" },

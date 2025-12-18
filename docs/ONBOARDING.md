@@ -56,30 +56,31 @@ Phasing out an item? Lab Cafe Hub uses **archiving** instead of deletion:
 
 ### 3.3 Configure ledger opening balance
 
-If the cafe already has funds on hand, record them:
-```sql
-INSERT INTO "LedgerEntry" (id, timestamp, description, "amountCents", category, "balanceAfterCents")
-VALUES (gen_random_uuid(), NOW(), 'Opening float', 75000, 'RECEIPT', 75000);
-```
+If the cafe already has funds on hand, record them from the UI:
+1. Visit `/app/ledger` as an admin.
+2. In **Adjust balance**, select **Credit (money in)**.
+3. Enter the amount in minor units (e.g., KRW).
+4. Pick an appropriate category (often `RECEIPT` or `ADJUSTMENT`) and a short description (ASCII, max 200 chars), e.g. `Opening float`.
+5. Submit – the account balance and trend graph update immediately.
 
 ## 4. Verify the end-to-end flow
 
 1. From your member view (`/app`), click **Take one** to simulate grabbing a snack.
 2. Confirm the toast appears and the stock count decrements.
-3. (Optional) Use **Undo** on the success toast or the **Recent transactions** panel to reverse an accidental click (works until the monthly settlement is finalized).
-4. Visit `/app/inventory` and `/app/ledger` to verify the stock movement and ledger entry.
+3. (Optional) Use **Undo** on the success toast or **Recent transactions** on `/app/account` to reverse an accidental click (works until bills are finalized).
+4. Visit `/app/inventory` to verify the stock movement and `/app/ledger` to verify the ledger balance.
 5. (Optional) Add another admin via the **People** page and confirm they can access admin sections.
 6. (Optional) Visit `/app/kiosk`, select a member, add a couple of items, and record the purchase to ensure the kiosk experience works on shared devices.
 
 ## 5. Prepare for settlements
 
-The listing UI exists, but creating/finalising settlements still requires SQL or scripts:
-1. Insert a `Settlement` covering the desired date range.
-2. Update prior consumptions with the `settlementId`.
-3. Insert `SettlementLine` rows with per-member totals (query `Consumption` grouped by `userId`).
-4. Record `Payment` rows as members reimburse the cafe.
-
-Keep any helper SQL you write; once the settlement workflow ships you can compare results.
+You can run settlements entirely from the UI:
+1. Visit `/app/settlements`.
+2. Create a **draft** for the month.
+3. Use **Preview bills** and **Corrections** to validate and fix mistakes.
+4. Click **Finalize bills** to lock the period (status becomes **BILLED**).
+5. Use **Payment tracking** to mark each member paid.
+6. When everyone is paid, click **Finalize settlement** to credit the ledger and close the month.
 
 ## 6. Hand-off checklist for new admins
 

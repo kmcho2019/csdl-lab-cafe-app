@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { formatCurrency } from "@/lib/currency";
 
@@ -20,7 +20,7 @@ type SettlementConsumption = {
 type ListSettlementConsumptionsResponse = {
   settlement: {
     id: string;
-    status: "DRAFT" | "FINALIZED" | "VOID";
+    status: "DRAFT" | "BILLED" | "FINALIZED" | "VOID";
     startDate: string;
     endDate: string;
   };
@@ -44,7 +44,7 @@ export function SettlementCorrections({ settlementId }: { settlementId: string }
 
   const locale = useMemo(() => Intl.DateTimeFormat().resolvedOptions().locale, []);
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -61,7 +61,7 @@ export function SettlementCorrections({ settlementId }: { settlementId: string }
     } finally {
       setLoading(false);
     }
-  }
+  }, [settlementId]);
 
   useEffect(() => {
     if (!open) {
@@ -71,7 +71,7 @@ export function SettlementCorrections({ settlementId }: { settlementId: string }
       return;
     }
     void load();
-  }, [open, consumptions]);
+  }, [open, consumptions, load]);
 
   const reverseMutation = useMutation({
     mutationFn: async ({ consumptionId, note }: { consumptionId: string; note?: string }) => {
@@ -125,7 +125,7 @@ export function SettlementCorrections({ settlementId }: { settlementId: string }
 
       <div className="mt-4 space-y-4">
         <p className="text-sm text-slate-600">
-          Reverse mistaken consumptions before finalizing. Reversed transactions are excluded from the settlement export.
+          Reverse mistaken consumptions before bills are finalized. Reversed transactions are excluded from the settlement export.
         </p>
 
         <div className="flex flex-wrap gap-2">
@@ -241,4 +241,3 @@ export function SettlementCorrections({ settlementId }: { settlementId: string }
     </details>
   );
 }
-

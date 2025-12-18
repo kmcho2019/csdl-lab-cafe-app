@@ -1,6 +1,7 @@
 import { Role } from "@prisma/client";
 import { redirect } from "next/navigation";
 
+import { LedgerDashboard } from "@/components/ledger/ledger-dashboard";
 import { formatCurrency } from "@/lib/currency";
 import { env } from "@/lib/env";
 import { getAuthSession } from "@/server/auth/session";
@@ -32,6 +33,9 @@ export default async function LedgerPage() {
         <h1 className="text-xl font-semibold text-slate-900">Ledger</h1>
         <p className="mt-2 text-sm text-slate-600">Last 50 entries</p>
       </header>
+
+      <LedgerDashboard locale={env.APP_LOCALE} currency={env.APP_CURRENCY} />
+
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="min-w-full divide-y divide-slate-200">
           <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">

@@ -38,9 +38,9 @@ Keep at least two active admins to avoid lockouts—the UI prevents demoting or 
 ## 2. Inventory Operations
 
 ### 2.1 Overview
-Visit `/app/inventory` (admins only). The page lists items grouped by category and exposes **Restock** and **Write-off** drawers for each item. Data flows:
-- Successful restocks create a `StockMovement` (`RESTOCK`) and optionally a `LedgerEntry` if you provide a unit cost.
-- Write-offs record a `StockMovement` (`WRITE_OFF`), clamp stock atomically, and can post a `LedgerEntry` loss when “Record in ledger” is checked.
+Visit `/app/inventory` (admins only). The page lists items grouped by category and exposes **Edit**, **Write-off**, and **Archive/Reactivate** actions.
+
+For day-to-day purchasing, use **Restocks** (`/app/restocks`) to record a multi-item purchase in one place (stock movements + ledger outflow + receipt metadata). The per-item restock drawer remains available for quick one-off top-ups, but the centralized restock flow is recommended for clean accounting.
 
 ### 2.2 Adding a new item
 - Open `/app/inventory` and use the **Add new item** form at the top of the page.
@@ -54,10 +54,19 @@ Visit `/app/inventory` (admins only). The page lists items grouped by category a
 - Saving updates the record immediately and, when the price changes, logs a new `ItemPriceHistory` row so settlements stay accurate.
 
 ### 2.4 Restocking best practices
-1. Click **Restock** beneath an item.
-2. Enter the quantity received; optionally add the **unit cost (minor units)** and a note.
-3. Provide a ledger description if you want something other than the auto-generated text.
-4. Submit – the UI refreshes the in-memory count and shows a confirmation banner.
+**Recommended (multi-item, ledger-accurate):**
+1. Visit `/app/restocks`.
+2. Fill in vendor/channel, optional receipt path + comment, and add one or more item lines (qty + unit cost).
+3. Add optional misc costs (shipping/fees) with a short comment.
+4. Submit – the system:
+   - Creates a `PurchaseOrder` (stored as received).
+   - Posts `StockMovement(type=RESTOCK)` per item line.
+   - Posts a `LedgerEntry(category=PURCHASE)` debit for the full cost (lines + misc).
+
+**Quick single-item top-up (fallback):**
+1. On `/app/inventory`, expand **Restock** for an item.
+2. Enter quantity and (optionally) unit cost.
+3. Submit – a `StockMovement(RESTOCK)` is created and a ledger debit is recorded if a unit cost is supplied.
 
 > Include the unit cost when you want the ledger to reflect the cash outlay. The API multiplies `unitCostCents × quantity` and posts a `PURCHASE` entry.
 
@@ -93,10 +102,18 @@ Settlements are how you close a period, lock the included consumptions, and expo
 ### 3.1 Monthly workflow (recommended)
 1. Visit `/app/settlements`.
 2. Create a **draft** for the month you want to bill.
-3. Download the **preview CSV** to sanity-check totals without locking anything.
-4. Review and correct mistakes (optional): expand **Corrections** on the draft settlement to reverse mistaken transactions before finalizing.
-5. Click **Finalize** once you are ready to close the month. This assigns `settlementId` to eligible consumptions and writes per-user `SettlementLine` rollups.
-6. Download the finalized CSV and share it with members (or your finance tracker).
+3. Expand **Preview bills** to review per-member totals and totals-by-item in the UI.
+4. (Optional) Expand **Corrections** to reverse mistaken transactions before billing is locked.
+5. Download the **preview CSV** to sanity-check totals without locking anything.
+6. Click **Finalize bills** once you are ready to lock the month. This:
+   - Assigns `settlementId` to eligible consumptions.
+   - Writes per-user `SettlementLine` rollups.
+   - Moves the settlement to **BILLED**.
+7. Expand **Payment tracking** and mark each member paid as transfers arrive.
+8. When everyone is paid, click **Finalize settlement**. This:
+   - Moves the settlement to **FINALIZED**.
+   - Credits the ledger with a single `SETTLEMENT` entry for the settlement total.
+9. Download the billed/finalized CSV for your records.
 
 ### 3.2 Notes
 - Draft exports are previews: they include consumptions in the range that still have `settlementId = NULL`.
@@ -110,7 +127,7 @@ Lab Cafe Hub supports reversing mistaken consumptions (mis-clicks, wrong member 
 Rules:
 - **Members** can only reverse their own transactions.
 - **Admins** can reverse transactions for any user (use the draft settlement **Corrections** panel).
-- Reversals are only allowed while the transaction is **unsettled** (`settlementId = NULL`). Once a settlement is finalized, included transactions cannot be changed.
+- Reversals are only allowed while the transaction is **unbilled** (`settlementId = NULL`). Once bills are finalized (**BILLED**), included transactions cannot be changed.
 - An optional ASCII note (max 200 chars) can be added for audit context.
 
 What happens on reversal:
@@ -118,19 +135,30 @@ What happens on reversal:
 - Stock is restored via `StockMovement(type=ADJUST, qty=...)`.
 - An `AuditLog` entry is created (`CONSUMPTION_REVERSED`).
 
+### 3.4 Transaction history (admin audit)
+Visit `/app/transactions` to review consumption activity across all members. The page supports:
+- Time window filters (From/To).
+- Pagination (“Load more”) for long histories.
+- Including or hiding reversed transactions.
+
+Use this view to audit stock changes and investigate disputes before billing is finalized.
+
+### 3.5 Period overview (between settlements)
+Visit `/app/overview` for a live summary of all unsettled consumptions (totals by item + by member). This view “resets” when a settlement bills the period, because billed consumptions receive a `settlementId`.
+
+### 3.6 Member reports
+From **People** (`/app/users`), click **Report** on a member to view:
+- Their current unsettled tab (transaction count, item count, expected bill).
+- Their last 12 billed periods with per-item breakdown.
+
 ## 4. Ledger Maintenance
 
-- `/app/ledger` shows the 50 most recent entries with running balances.
-- Restocks and write-offs automatically add ledger entries when cost tracking is enabled.
-- For ad-hoc adjustments, insert directly:
-  ```sql
-  INSERT INTO "LedgerEntry" (
-    id, timestamp, description, "amountCents", category, "userId"
-  ) VALUES (
-    gen_random_uuid(), NOW(), 'Bank transfer settlement #12', 38000, 'RECEIPT', '<admin-id>'
-  );
-  ```
-- Keeping `balanceAfterCents` up to date is optional; the UI handles nulls gracefully.
+- `/app/ledger` includes:
+  - An **Account balance** dashboard (sparkline over time + current balance).
+  - An **Adjust balance** form for opening balances, donations, and manual corrections (ASCII description, 200 chars).
+  - A table of recent entries.
+- Restocks and write-offs add ledger entries when cost tracking is enabled.
+- Settlements credit the ledger only when the settlement is fully **FINALIZED** (after all members are marked paid).
 
 ## 5. Analytics & Alerts
 

@@ -1,9 +1,10 @@
 type SparklineProps = {
   values: number[];
   className?: string;
+  ariaLabel?: string;
 };
 
-export function Sparkline({ values, className }: SparklineProps) {
+export function Sparkline({ values, className, ariaLabel }: SparklineProps) {
   if (values.length < 2) {
     return null;
   }
@@ -32,7 +33,7 @@ export function Sparkline({ values, className }: SparklineProps) {
     <svg
       viewBox={`0 0 ${width} ${height}`}
       role="img"
-      aria-label="Stock trend"
+      aria-label={ariaLabel ?? "Trend"}
       className={className ?? ""}
     >
       <polyline
@@ -46,4 +47,3 @@ export function Sparkline({ values, className }: SparklineProps) {
     </svg>
   );
 }
-

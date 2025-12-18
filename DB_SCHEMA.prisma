@@ -23,6 +23,7 @@ enum StockMovementType {
 
 enum SettlementStatus {
   DRAFT
+  BILLED
   FINALIZED
   VOID
 }
@@ -30,6 +31,7 @@ enum SettlementStatus {
 enum LedgerCategory {
   PURCHASE
   RECEIPT
+  SETTLEMENT
   ADJUSTMENT
   WRITE_OFF
   OTHER
@@ -199,6 +201,11 @@ model Payment {
 model PurchaseOrder {
   id           String               @id @default(cuid())
   vendorName   String
+  purchaseChannel String?
+  receiptPath    String?
+  comment        String?
+  miscCostCents  Int? 
+  miscComment    String?
   status       PurchaseOrderStatus  @default(DRAFT)
   orderedAt    DateTime?
   receivedAt   DateTime?
