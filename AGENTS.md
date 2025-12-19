@@ -16,8 +16,8 @@ This document defines **who** (or what) performs which responsibilities in the s
 ### Admin
 - All Member privileges.
 - Manage **users** (add/promote/demote/archive; manage allowlist).
-- Manage **inventory** (create/edit items, price changes, restock, write‑offs).
-- Run **settlements** (preview → finalize → export → notify).
+- Manage **inventory** (create/edit items, price changes, restock, write‑offs, archive/reactivate).
+- Run **settlements** (draft → bill → payment tracking → finalize → export → notify).
 - Maintain **ledger** (purchases, receipts, adjustments).
 - Review **analytics** (popularity, low stock).
 
@@ -33,15 +33,15 @@ This document defines **who** (or what) performs which responsibilities in the s
 
 ### 2.2 Inventory Agent
 - Single source of truth for stock counts (creates `StockMovement` rows).
-- Validates non-negative stock and prevents oversell (unless admin override).
+- Validates non-negative stock and prevents oversell.
 - Emits low-stock events when `currentStock <= lowStockThreshold`.
 
 ### 2.3 Settlement Agent
-- Draft → preview → finalize workflow.
+- Draft → preview → bill → finalize workflow.
 - Freezes eligible `Consumption` rows by assigning `settlementId`.
 - Writes `SettlementLine` rollups and generates export files.
 - Optionally queues **Notification Agent** emails to members.
-- Supports **void** and **re-open** (admin-only; full audit trail).
+- Planned: supports **void** and **re-open** (admin-only; full audit trail).
 
 ### 2.4 Ledger Agent
 - Persists all cash movements:
@@ -98,13 +98,13 @@ API → UI: 200 OK { newTabTotal, newStock }
 
 ### 4.2 Admin restocks
 ```
-Admin → UI: Restock item
-UI → API: POST /api/items/:id/restock { qty, unitCost }
+Admin → UI: Record restock (central purchase order)
+UI → API: POST /api/purchase-orders { vendor, lines, misc }
 API:
-    - Create PurchaseOrder (optional)
-    - Create StockMovement(RESTOCK, qty)
+    - Create PurchaseOrder (received)
+    - Create StockMovement(RESTOCK, qty) per line
     - Increment Item.currentStock
-    - LedgerAgent: add debit (qty * unitCost)
+    - LedgerAgent: add debit (sum of line costs + misc)
 UI: show updated stock and ledger balance
 ```
 
@@ -114,11 +114,14 @@ Admin → UI: Create DRAFT (date range)
 SettlementAgent:
     - Aggregate un-settled Consumptions in range
     - Build preview per user
-Admin → UI: FINALIZE
+Admin → UI: FINALIZE BILLS (BILLED)
 SettlementAgent:
     - Assign settlementId to included Consumptions
     - Persist Settlement + SettlementLines
     - Generate CSV/Excel
+Admin → UI: Track payments
+Admin → UI: FINALIZE settlement (FINALIZED)
+LedgerAgent: credit settlement total
 NotificationAgent: email each member (optional)
 ```
 
@@ -139,7 +142,7 @@ LedgerAgent (optional): debit "Loss/Write-off"
 - **Price change mid-period:** Price at time of consumption is immutable (`priceAtTx`), so settlements remain accurate.
 - **Archive user with unpaid tab:** User is `isActive=false` but account remains visible to admins; they can still be included in settlement. Prevent future sign-ins.
 - **Negative stock discovered:** Use `ADJUST` movement to reconcile; leave audit note.
-- **Mis-click:** Allow member self-reversal within X minutes (e.g., 2 mins) if stock still available, recorded as compensating `ADJUST + reverse Consumption` (audit logged).
+- **Mis-click:** Allow reversal while unbilled; members can reverse their own transactions, admins can reverse any. Record `reversedAt`, add a compensating `ADJUST` stock movement, and audit log the note.
 
 ---
 

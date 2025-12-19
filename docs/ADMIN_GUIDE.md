@@ -192,8 +192,8 @@ Maintain a simple runbook: who to contact, where backups live, and how to rebuil
 ## 7. Admin Handover Checklist
 
 1. Confirm at least two admins exist and both can load `/app/inventory`.
-2. Export current settlements and ledger CSV for archival.
-3. Review low stock report and pending purchase orders.
+2. Export current settlements and take a ledger snapshot (UI table or `pg_dump`) for archival.
+3. Review low stock report and recent restocks.
 4. Document outstanding debts before closing a settlement.
 5. Share the `.env` (minus secrets) and update OAuth callbacks if the domain changes.
 

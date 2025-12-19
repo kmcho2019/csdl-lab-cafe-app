@@ -95,20 +95,21 @@ Refresh `/app` to confirm **Inventory**, **People**, **Settlements**, and **Ledg
 1. Navigate to `/app/inventory` (admin only).
 2. Use **Add new item** to create menu entries with price, unit, initial stock, and low-stock threshold.
 3. Expand **Edit** on an item to tweak the name, price, unit, or category (use the dropdown or add a new category).
-4. Expand **Restock** under an existing item, enter the quantity and optional unit cost, and submit.
-5. The UI updates immediately; check `/app/ledger` to see the purchase entry when a unit cost is provided.
+4. For multi-item purchases, open `/app/restocks` and record a centralized restock (vendor + receipt path + item lines).
+5. Use the per-item **Restock** drawer for quick top-ups; supply a unit cost if you want a ledger debit.
+6. The UI updates immediately; check `/app/ledger` to see purchase entries.
 
-## 10.5. Try kiosk mode
+## 10. Try kiosk mode
 
 1. Open `/app/kiosk` (admin only).
 2. Select a member, tap a few items, and hit **Record purchase**.
 3. Verify that the cart clears and the member’s tab reflects the new charges.
 
-## 10. Check the ledger
+## 11. Check the ledger
 
 Visit `/app/ledger` to see the latest entries. The demo seed inserts an "Initial float" credit so you can observe debits and running balances.
 
-## 11. Command-line helpers
+## 12. Command-line helpers
 
 - Enter an interactive `psql` shell:
   ```bash
@@ -126,7 +127,7 @@ Visit `/app/ledger` to see the latest entries. The demo seed inserts an "Initial
   docker compose down --volumes
   ```
 
-## 12. Troubleshooting quick hits
+## 13. Troubleshooting quick hits
 
 | Symptom | Fix |
 | --- | --- |

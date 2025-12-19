@@ -185,6 +185,37 @@ ORDER BY timestamp DESC
 LIMIT 30;
 ```
 
+### 2.7 Purchase orders (restocks)
+
+```sql
+SELECT po."createdAt",
+       po."vendorName",
+       po."purchaseChannel",
+       po."totalCostCents",
+       po."receiptPath",
+       po."comment",
+       po."miscCostCents",
+       po."miscComment"
+FROM "PurchaseOrder" po
+ORDER BY po."createdAt" DESC
+LIMIT 25;
+```
+
+Line items:
+
+```sql
+SELECT poi."createdAt",
+       i.name,
+       poi.quantity,
+       poi."unitCostCents",
+       po."vendorName"
+FROM "PurchaseOrderItem" poi
+JOIN "PurchaseOrder" po ON po.id = poi."purchaseOrderId"
+JOIN "Item" i ON i.id = poi."itemId"
+ORDER BY poi."createdAt" DESC
+LIMIT 50;
+```
+
 ## 3. Linking GitHub accounts after manual imports
 
 The app will automatically link a GitHub OAuth sign-in to an existing `User` row when the GitHub email matches `User.email` (this is also how the **People** page works).

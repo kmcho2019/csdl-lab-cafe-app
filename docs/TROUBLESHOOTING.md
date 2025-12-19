@@ -17,6 +17,8 @@ The fastest fixes for the issues you are most likely to encounter while operatin
 | --- | --- |
 | Prisma error “authentication failed for user” | Remove quotes from `POSTGRES_*` values, run `docker compose down --volumes`, and bring the stack back up so the database is reinitialised with the new password. |
 | `DATABASE_URL` missing or incorrect | Verify `.env` exists, run `npm run dev` again (Next.js loads env only at boot), and double-check interpolation in `src/lib/env.ts`. |
+| CI migrate step logs “DATABASE_URL not set” | Add `DATABASE_URL` as a GitHub Actions secret (repo or environment). `.env` files are not loaded in Actions. |
+| CI migrate step fails with “No prisma/migrations directory” | Create a baseline migration (see `docs/DB_OPERATIONS.md`), or set `PRISMA_ALLOW_DB_PUSH=1` for a one-time schema push. |
 | `docker: command not found` (or `docker compose` missing) | Expected inside the VS Code devcontainer; run `npx prisma ...` commands in the container and run Compose commands from your host terminal. See `docs/DEVCONTAINER.md`. |
 | `pg_isready` healthcheck fails repeatedly | Another process may be bound to port 5432. Stop local Postgres installs or change `POSTGRES_PORT` + `DATABASE_URL` accordingly. |
 
@@ -33,8 +35,8 @@ The fastest fixes for the issues you are most likely to encounter while operatin
 
 | Symptom | Fix |
 | --- | --- |
-| Settlement list empty | No settlements exist yet. Insert a draft row manually or wait for the upcoming UI. |
-| Ledger balance incorrect after restock | Ensure you supplied the unit cost when restocking. Without it, stock increases but no ledger entry is created. Add a manual `LedgerEntry` to reconcile. |
+| Settlement list empty | Create a draft in `/app/settlements` (admins only). Drafts are created on demand rather than automatically. |
+| Ledger balance incorrect after restock | Use `/app/restocks` for multi-item purchases so the ledger is debited automatically. Per-item restocks only create ledger entries when a unit cost is supplied. |
 
 ## General Dev
 

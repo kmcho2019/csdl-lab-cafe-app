@@ -4,7 +4,7 @@
 1. **DRAFT** (created with date range)
 2. **BILLED** (bills finalized; consumptions frozen + rollups written)
 3. **FINALIZED** (all members paid; ledger credited)
-4. **VOID** (optional admin escape hatch; audit required)
+4. **VOID** (reserved for future admin escape hatch; no UI yet)
 
 ## Inclusion Rules
 - At **bill finalization** (`DRAFT → BILLED`), include all `Consumption.createdAt ∈ [startDate, endDate]` where:
@@ -26,7 +26,7 @@
 - Once bills are finalized (**BILLED**), included consumptions have `settlementId` set and **cannot be reversed**.
 - If a mistake is discovered after billing:
   - Record a compensating adjustment in the next period (reverse + re-apply).
-  - Or **VOID** the settlement (admin-only) and re-run (rare). Both paths should be audit logged.
+  - Or **VOID** the settlement (admin-only) and re-run (rare, UI not implemented yet). Both paths should be audit logged.
 
 ## Payments
 - **BILLED** settlements track payments via `Payment` rows (admin-only checkbox UI).

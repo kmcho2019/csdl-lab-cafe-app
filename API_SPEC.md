@@ -39,7 +39,7 @@ PATCH /api/admin/users/clxy123
 ## Consumption
 - `POST /consumptions` — `{ itemId, quantity=1 }`
 - `GET /consumptions?limit=25&includeReversed=true&includeSettled=false` — lists your recent consumptions.
-- `POST /consumptions/:id/reverse` — `{ note? }` (ASCII, max 200 chars). Requires `settlementId = NULL`.
+- `POST /consumptions/:id/reverse` — `{ note? }` (Unicode ok, max 200 chars; control chars rejected). Requires `settlementId = NULL`.
 
 ### Example
 ```http
@@ -58,7 +58,7 @@ POST /api/consumptions
 - `GET /settlements/:id/payments` **(admin)** — billed payment summary (due/paid per member).
 - `POST /settlements/:id/payments` **(admin)** — toggle paid/unpaid:
   - `{ userId, isPaid, method?, reference? }`
-  - `reference` is ASCII, max 200 chars.
+  - `reference` is Unicode ok, max 200 chars; control chars rejected.
 - `POST /settlements/:id/complete` **(admin)** — **finalize settlement** (`BILLED → FINALIZED`):
   - requires all members paid
   - creates a `LedgerEntry(category=SETTLEMENT)` credit for the settlement total
@@ -71,7 +71,7 @@ POST /api/consumptions
 ## Ledger
 - `GET /ledger` **(admin)** — list entries (with running balance).
 - `POST /ledger` **(admin)** — manual entry `{ timestamp?, description, amountCents, category }`
-  - `description` is ASCII, max 200 chars.
+  - `description` is Unicode ok, max 200 chars; control chars rejected.
 - `GET /ledger/summary?window=7d|30d|90d` **(admin)** — running balance series for charts.
 
 ## Reports
@@ -82,7 +82,7 @@ POST /api/consumptions
 - `GET /purchase-orders?limit=20&cursor=<id>` **(admin)** — list recent purchase orders.
 - `POST /purchase-orders` **(admin)** — record a received restock with one or more lines:
   - `{ vendorName, purchaseChannel?, receiptPath?, comment?, miscCostCents?, miscComment?, lines: [{ itemId, quantity, unitCostCents }] }`
-  - `comment`, `receiptPath`, and `miscComment` are ASCII-bounded.
+  - `comment`, `receiptPath`, and `miscComment` accept Unicode (max length enforced; control chars rejected).
   - Creates `PurchaseOrder`, `StockMovement(RESTOCK)` rows, and a `LedgerEntry(category=PURCHASE)` debit.
 
 ## Errors

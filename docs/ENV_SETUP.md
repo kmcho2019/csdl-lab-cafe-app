@@ -40,6 +40,8 @@ Store real secrets in a secure vault and share with the team through encrypted c
 3. Optionally add your email domain to `ALLOWLIST_DOMAINS` so everyone can sign in immediately.
 4. Start the stack (`docker compose up -d db`) and run migrations (`docker compose run --rm web npx prisma db push`).
 
+> Production note: use `prisma migrate deploy` (via CI) for production databases. See `docs/HOSTING.md` for the recommended workflow.
+
 Devcontainer note:
 - The VS Code Dev Container uses the same `.env` file, and the default `POSTGRES_HOST=db` is correct there. See `docs/DEVCONTAINER.md` for the container-first workflow (including DB resets and demo seeding).
 
@@ -57,6 +59,7 @@ If you see `Authentication failed` errors from Prisma inside Docker, double-chec
 - `.env.local` – personal overrides ignored by git.
 - `.env.production` – production-only values for self-hosting (load with `dotenv-flow` or Compose overrides).
 - Hosting providers (Vercel, Fly.io, etc.) usually want you to configure secrets through their dashboard instead of checking in files.
+- GitHub Actions does **not** read `.env`; add `DATABASE_URL` and any other required values as Actions secrets.
 
 ## 7. Client-safe variables
 

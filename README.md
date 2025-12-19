@@ -26,11 +26,12 @@ A lightweight web app to manage a lab's snack/drink cafe: track inventory, recor
 - One‑tap **“Take one”** (records consumption + decrements stock).
 - See **current tab** and full history.
 - See **past settlements** and what was owed/paid per period.
+- Undo accidental consumptions before bills are finalized.
 - Names and receipts render in any language (Korean verified) with locale-aware currency formatting.
 
 ### Admin
 - All member features.
-- **Inventory:** add/edit items; restock; write-off (expiry/damage); price changes with history.
+- **Inventory:** add/edit items; restock; write-off (expiry/damage); archive/reactivate items; price changes with history.
 - **Menu builder:** add new items with price and initial stock directly from the UI.
 - **Kiosk mode:** tablet-friendly cart where members can self-checkout and admins can charge any active member.
 - **Users:** add/promote/demote; archive (freeze) leavers; email/domain allowlist.
@@ -40,9 +41,8 @@ A lightweight web app to manage a lab's snack/drink cafe: track inventory, recor
 - **Restocks:** centralized multi-item restocks (purchase orders) with margin warnings + receipt metadata; ledger outflow recorded automatically.
 - **Transactions:** time-filtered consumption history across all members (pagination + reversed toggle).
 - **Overview:** between-settlement summary (totals by item + by member).
-- **Orders:** purchase orders → receive stock → update ledger.
-- **Reports:** popularity, least/most consumed, low stock alerts.
-- **Data export:** transactions, settlements, and ledger as CSV/Excel.
+- **Reports:** popularity, least/most consumed, low stock indicators.
+- **Data export:** settlement CSV exports; transaction history and ledger entries are available in the UI.
 
 ### Documentation Hub
 - Built-in reference library at `/docs` (or via **View docs** on the landing page) renders Markdown/Prisma sources in-app, so operators never have to leave the site during production incidents.
@@ -56,7 +56,7 @@ A lightweight web app to manage a lab's snack/drink cafe: track inventory, recor
 - **DB:** PostgreSQL (recommended) with Prisma ORM. SQLite acceptable for local single‑user dev.  
 - **UI:** Tailwind CSS + shadcn/ui components.  
 - **Deploy:** Vercel (serverless) *or* Docker Compose (web + Postgres).  
-- **Background jobs:** Vercel Cron (or container cron) for low‑stock checks and email notices.
+- **Background jobs:** optional (no cron jobs shipped yet; hook your own scheduler for reminders).
 
 ### Repo layout
 
@@ -110,10 +110,16 @@ Browser ──(OAuth via GitHub)──> Next.js ── Prisma ──> Postgres
 - Reversals set `Consumption.reversedAt`, restore stock via `StockMovement(type=ADJUST)`, and write an `AuditLog` entry (`CONSUMPTION_REVERSED`).
 
 ### Restock
-1. Admin clicks **Restock** on item, enters quantity and total cost (or unit cost).
-2. Create `PurchaseOrder` (optional) and `StockMovement(RESTOCK)`.
-3. Ledger: add **debit** for purchase.
+**Recommended (central purchase order):**
+1. Admin opens `/app/restocks`, adds vendor/channel, receipt path, and item lines.
+2. Create `PurchaseOrder` with line items and `StockMovement(RESTOCK)` rows.
+3. Ledger: add **debit** for the full purchase cost (lines + misc).
 4. Increase `Item.currentStock` atomically.
+
+**Quick top-up (per-item fallback):**
+1. Admin clicks **Restock** on an item in `/app/inventory`.
+2. Enter quantity and optional unit cost.
+3. Create `StockMovement(RESTOCK)`; ledger debits only if a unit cost is supplied.
 
 ### Add new menu item
 1. Admin fills **Add new item** form with name, price (minor units), optional category/unit, initial stock, and low-stock threshold.
@@ -136,9 +142,10 @@ Browser ──(OAuth via GitHub)──> Next.js ── Prisma ──> Postgres
 ### Settlement
 1. Admin **creates DRAFT**: choose date range (default last period).
 2. System assembles per-user totals and preview.
-3. Admin **FINALIZEs**: locks in included `Consumption` rows (assigns settlementId).
+3. Admin **FINALIZEs bills**: locks in included `Consumption` rows (assigns settlementId).
 4. System writes `SettlementLine` summaries and generates exports. Optional email notifications.
-5. Admin marks payments as received (ledger **credits**).
+5. Admin tracks payments while the settlement is **BILLED**.
+6. Admin **FINALIZEs settlement** once all members are paid; ledger is credited at this step.
 
 ---
 
@@ -158,8 +165,6 @@ See `SECURITY.md` for details.
 ## 7) Exports
 
 - **Settlement CSV/Excel** (per user: item count, amount, bank-memo string).
-- **Transaction CSV** (timestamp, member, item, priceAtTx, quantity, settlementId).
-- **Ledger CSV** (date, description, debit, credit, running balance).
 - All exports are idempotent and labeled with ISO dates (e.g., `settlement_2025-01-01__2025-02-28.csv`).
 
 ---
@@ -251,7 +256,7 @@ Key environment variables (see `.env.example` for all):
 - `GITHUB_ID`, `GITHUB_SECRET` – OAuth creds
 - `ALLOWLIST_DOMAINS` – comma-separated domains (e.g., `uni.edu,other.edu`)
 - `SMTP_*` – for email notifications
-- `APP_CURRENCY` – e.g., `USD`, `EUR`, `KRW`; store prices in minor units (won have no decimals).
+- `APP_CURRENCY` – e.g., `USD`, `EUR`, `KRW`; store prices in minor units (won has no decimals).
 - `EMAIL_FROM` – defaults to a quoted value; other variables should stay unquoted to avoid Docker Compose quoting surprises.
 - `APP_LOCALE` – e.g., `en-US`, `ko-KR`; drives per-user number/currency formatting.
 
@@ -259,7 +264,7 @@ Key environment variables (see `.env.example` for all):
 
 ## 10) Roadmap / Nice-to-haves
 
-- Kiosk/PWA mode (large buttons, offline queue with replay).
+- Kiosk offline queue (capture transactions during Wi‑Fi outages).
 - Barcode/QR scan to “take” or restock items.
 - Stripe/PayPal integration (optional) — current default is manual bank transfer + mark as paid.
 - Webhooks (notify Slack on low-stock / settlement created).
