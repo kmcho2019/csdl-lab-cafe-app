@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "migrate:deploy": "node scripts/ensure-migrate.js",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",

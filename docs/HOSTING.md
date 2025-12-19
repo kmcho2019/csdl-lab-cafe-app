@@ -28,10 +28,12 @@ Lab Cafe Hub is a Next.js 15 application backed by PostgreSQL. Deploy it whereve
 2. Create a new Vercel project and select the repository.
 3. Configure Environment Variables in Vercel → Settings → Environment Variables (Production + Preview).
 4. Provision a Postgres database (Vercel Postgres, Neon, Supabase, etc.) and set `DATABASE_URL` accordingly.
-5. Add a [Vercel Postgres migration step](https://vercel.com/docs/storage/sql/prisma#step-4:-configure-prisma) by setting the Install Command to `npm install` and the Build Command to `npm run prisma:generate && npm run build` (Prisma migrations run via cron or manually—see below).
+5. Run Prisma migrations via CI before each production deploy (see `.github/workflows/migrate-production.yml`).
+   - The workflow uses `node scripts/ensure-migrate.js` with `DATABASE_URL` from secrets.
+   - Strict mode is on by default; set `PRISMA_AUTO_MIGRATE_STRICT=0` to allow the job to continue on errors.
 6. Set the GitHub OAuth callback to `${NEXTAUTH_URL}/api/auth/callback/github`.
 
-Migrations: run `npx prisma migrate deploy` via Vercel Deploy Hooks, a GitHub Action, or manually from your machine (using the managed `DATABASE_URL`).
+Migrations: `npm run migrate:deploy` runs in CI (recommended). To allow the job to continue on migration errors, set `PRISMA_AUTO_MIGRATE_STRICT=0`.
 
 ## 4. Self-hosting with Docker Compose
 
@@ -43,7 +45,7 @@ Migrations: run `npx prisma migrate deploy` via Vercel Deploy Hooks, a GitHub Ac
    ```
 3. Apply schema inside the container:
    ```bash
-   docker compose exec web npx prisma migrate deploy
+   docker compose exec web node scripts/ensure-migrate.js
    ```
 4. Optionally seed demo data: `docker compose exec web npm run db:seed`.
 5. Expose port 3000 behind a reverse proxy (Caddy/Nginx) with HTTPS.
@@ -67,7 +69,7 @@ Migrations: run `npx prisma migrate deploy` via Vercel Deploy Hooks, a GitHub Ac
 
 - [ ] `NEXTAUTH_URL` matches your HTTPS domain.
 - [ ] All OAuth callback URLs updated to the production domain.
-- [ ] Prisma migrations applied (`npx prisma migrate status`).
+- [ ] Prisma migrations applied (CI runs `npm run migrate:deploy`).
 - [ ] At least one admin account confirmed.
 - [ ] Allowlist populated with the right domains/emails.
 - [ ] Backups scheduled for the Postgres database.

@@ -232,7 +232,10 @@ The app boots with:
 1. Create project and add environment variables from `.env.example`.
 2. Add a Postgres (Vercel Postgres / Supabase / Neon). Set `DATABASE_URL`.
 3. Configure **GitHub OAuth** callback: `${NEXTAUTH_URL}/api/auth/callback/github`.
-4. Set Vercel Cron for periodic jobs (optional).
+4. Run Prisma migrations via CI (see `.github/workflows/migrate-production.yml`).
+   - The workflow runs `npm run migrate:deploy` with `DATABASE_URL` from secrets.
+   - Strict mode is on by default; set `PRISMA_AUTO_MIGRATE_STRICT=0` to allow the job to continue on errors.
+5. Set Vercel Cron for periodic jobs (optional).
 
 ---
 
