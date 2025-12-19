@@ -29,8 +29,10 @@ Lab Cafe Hub is a Next.js 15 application backed by PostgreSQL. Deploy it whereve
 3. Configure Environment Variables in Vercel → Settings → Environment Variables (Production + Preview).
 4. Provision a Postgres database (Vercel Postgres, Neon, Supabase, etc.) and set `DATABASE_URL` accordingly.
 5. Run Prisma migrations via CI before each production deploy (see `.github/workflows/migrate-production.yml`).
+   - Add `DATABASE_URL` as a GitHub Actions secret (repo or environment). `.env` files are not loaded in Actions.
    - The workflow uses `node scripts/ensure-migrate.js` with `DATABASE_URL` from secrets.
    - Strict mode is on by default; set `PRISMA_AUTO_MIGRATE_STRICT=0` to allow the job to continue on errors.
+   - If there is no `prisma/migrations` directory yet, create a baseline migration or explicitly allow `PRISMA_ALLOW_DB_PUSH=1` for a one-time schema push.
 6. Set the GitHub OAuth callback to `${NEXTAUTH_URL}/api/auth/callback/github`.
 
 Migrations: `npm run migrate:deploy` runs in CI (recommended). To allow the job to continue on migration errors, set `PRISMA_AUTO_MIGRATE_STRICT=0`.

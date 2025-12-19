@@ -6,6 +6,7 @@ const path = require("node:path");
 const databaseUrl = process.env.DATABASE_URL;
 const skip = process.env.SKIP_PRISMA_MIGRATE === "1";
 const strict = process.env.PRISMA_AUTO_MIGRATE_STRICT !== "0";
+const allowDbPush = process.env.PRISMA_ALLOW_DB_PUSH === "1";
 
 if (skip) {
   console.log("[migrate] SKIP_PRISMA_MIGRATE=1, skipping automatic migrations.");
@@ -56,10 +57,27 @@ function hasMigrationsDir() {
 
 function applyMigrations() {
   if (!hasMigrationsDir()) {
-    console.warn("[migrate] No prisma/migrations directory found. Skipping migrate deploy.");
+    if (!allowDbPush) {
+      console.warn("[migrate] No prisma/migrations directory found. Skipping migrate deploy.");
+      if (strict) {
+        console.error("[migrate] Strict mode enabled; aborting without migrations.");
+        console.error("[migrate] Set PRISMA_ALLOW_DB_PUSH=1 to opt into prisma db push.");
+        process.exit(1);
+      }
+      return false;
+    }
+
+    console.warn("[migrate] No prisma/migrations directory found. Running `prisma db push` (explicitly allowed).");
+    const result = runCommand("npx", ["prisma", "db", "push"]);
+    if (result.status === 0) {
+      console.log("[migrate] Schema pushed successfully.");
+      return true;
+    }
+
+    console.error("[migrate] Failed to push schema.");
     if (strict) {
-      console.error("[migrate] Strict mode enabled; aborting without migrations.");
-      process.exit(1);
+      console.error("[migrate] Strict mode enabled; aborting.");
+      process.exit(result.status ?? 1);
     }
     return false;
   }

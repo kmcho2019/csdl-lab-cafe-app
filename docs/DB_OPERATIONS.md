@@ -54,6 +54,28 @@ npx prisma studio --hostname 0.0.0.0 --port 5555
 
 For DB resets and demo seeding in the devcontainer, see `docs/DEVCONTAINER.md`.
 
+### 1.5 Baseline migrations for an existing database
+
+Use this one-time flow when production already has tables but `prisma/migrations` is empty.
+
+1. Align the Prisma schema with production (review the diff before committing):
+   ```bash
+   npx prisma db pull
+   ```
+2. Generate a baseline migration file without applying it:
+   ```bash
+   mkdir -p prisma/migrations/0000_baseline
+   npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > prisma/migrations/0000_baseline/migration.sql
+   ```
+3. Mark the baseline as applied against production:
+   ```bash
+   npx prisma migrate resolve --applied 0000_baseline
+   ```
+4. Verify status, then rely on CI `prisma migrate deploy` for future changes:
+   ```bash
+   npx prisma migrate status
+   ```
+
 ## 2. Everyday Queries
 
 ### 2.1 Allowlist entries
