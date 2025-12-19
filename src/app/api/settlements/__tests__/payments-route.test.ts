@@ -165,7 +165,7 @@ describe("POST /api/settlements/:id/payments", () => {
       new Request("http://localhost/api/settlements/settle-1/payments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: "u1", isPaid: true }),
+        body: JSON.stringify({ userId: "u1", isPaid: true, reference: "\uCE74\uCE74\uC624\uBC45\uD06C \uC1A1\uAE08" }),
       }),
       { params: Promise.resolve({ id: "settle-1" }) },
     );
