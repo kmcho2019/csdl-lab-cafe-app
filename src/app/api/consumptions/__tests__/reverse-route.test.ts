@@ -21,14 +21,14 @@ const requireSessionMock = vi.mocked(requireSession);
 const prismaMock = vi.mocked(prisma, { deep: true });
 
 describe("POST /api/consumptions/:id/reverse", () => {
-  it("rejects non-ASCII notes", async () => {
+  it("rejects control characters in notes", async () => {
     requireSessionMock.mockResolvedValue({ user: { id: "user-1", role: "MEMBER", isActive: true } } as never);
 
     const response = await reverseConsumption(
       new Request("http://localhost/api/consumptions/c1/reverse", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ note: "안녕" }),
+        body: JSON.stringify({ note: "Bad\u0000Note" }),
       }),
       { params: Promise.resolve({ id: "c1" }) },
     );
@@ -146,7 +146,7 @@ describe("POST /api/consumptions/:id/reverse", () => {
       new Request("http://localhost/api/consumptions/c1/reverse", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ note: "Mis-click" }),
+        body: JSON.stringify({ note: "\uC2E4\uC218" }),
       }),
       { params: Promise.resolve({ id: "c1" }) },
     );
@@ -168,7 +168,7 @@ describe("POST /api/consumptions/:id/reverse", () => {
         data: expect.objectContaining({
           itemId: "item-1",
           quantity: 2,
-          note: expect.stringContaining("Mis-click"),
+          note: expect.stringContaining("\uC2E4\uC218"),
         }),
       }),
     );
@@ -184,4 +184,3 @@ describe("POST /api/consumptions/:id/reverse", () => {
     );
   });
 });
-

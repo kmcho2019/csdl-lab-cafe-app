@@ -2,6 +2,7 @@ import { LedgerCategory } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { hasControlCharacters } from "@/lib/text";
 import { requireAdmin } from "@/server/auth/guards";
 import { authErrorToResponse } from "@/server/auth/http";
 import { prisma } from "@/server/db/client";
@@ -17,8 +18,8 @@ const createLedgerEntrySchema = z.object({
     .string()
     .min(1)
     .max(200)
-    .refine((value) => /^[\x20-\x7E]*$/.test(value), {
-      message: "Description must be ASCII.",
+    .refine((value) => !hasControlCharacters(value), {
+      message: "Description must not include control characters.",
     }),
   amountCents: z.coerce.number().int().refine((value) => value !== 0, {
     message: "Amount cannot be zero.",
@@ -165,4 +166,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

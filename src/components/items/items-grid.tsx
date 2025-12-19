@@ -148,7 +148,7 @@ export function ItemsGrid({ items, locale }: { items: Item[]; locale: string }) 
                   }}
                 >
                   <label className="text-xs font-medium text-slate-600">
-                    Note (optional, ASCII, 200 chars)
+                    Note (optional, max 200 chars, Unicode ok)
                     <input
                       type="text"
                       value={undoNote}

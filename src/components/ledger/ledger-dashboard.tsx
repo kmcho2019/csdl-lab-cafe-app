@@ -212,7 +212,7 @@ export function LedgerDashboard({ locale, currency }: { locale: string; currency
           </label>
 
           <label className="md:col-span-4 flex flex-col gap-1 text-sm font-medium text-slate-600">
-            Description (ASCII, max 200 chars)
+            Description (max 200 chars, Unicode ok)
             <input
               value={description}
               onChange={(event) => setDescription(event.target.value)}
@@ -237,4 +237,3 @@ export function LedgerDashboard({ locale, currency }: { locale: string; currency
     </div>
   );
 }
-

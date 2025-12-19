@@ -60,7 +60,7 @@ If the cafe already has funds on hand, record them from the UI:
 1. Visit `/app/ledger` as an admin.
 2. In **Adjust balance**, select **Credit (money in)**.
 3. Enter the amount in minor units (e.g., KRW).
-4. Pick an appropriate category (often `RECEIPT` or `ADJUSTMENT`) and a short description (ASCII, max 200 chars), e.g. `Opening float`.
+4. Pick an appropriate category (often `RECEIPT` or `ADJUSTMENT`) and a short description (Unicode ok, max 200 chars; control characters blocked), e.g. `Opening float`.
 5. Submit – the account balance and trend graph update immediately.
 
 ## 4. Verify the end-to-end flow

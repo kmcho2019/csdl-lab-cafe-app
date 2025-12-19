@@ -2,6 +2,7 @@ import { Role, StockMovementType } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { hasControlCharacters } from "@/lib/text";
 import { requireSession } from "@/server/auth/guards";
 import { authErrorToResponse } from "@/server/auth/http";
 import { prisma } from "@/server/db/client";
@@ -10,8 +11,8 @@ const reverseConsumptionSchema = z.object({
   note: z
     .string()
     .max(200)
-    .refine((value) => /^[\x20-\x7E]*$/.test(value), {
-      message: "Note must be ASCII.",
+    .refine((value) => !hasControlCharacters(value), {
+      message: "Note must not include control characters.",
     })
     .optional(),
 });
@@ -184,4 +185,3 @@ export async function POST(
     );
   }
 }
-

@@ -78,14 +78,14 @@ describe("GET /api/settlements/:id/payments", () => {
 });
 
 describe("POST /api/settlements/:id/payments", () => {
-  it("rejects non-ASCII references", async () => {
+  it("rejects control characters in references", async () => {
     requireAdminMock.mockResolvedValue({ user: { id: "admin-1", role: "ADMIN", isActive: true } } as never);
 
     const response = await togglePayment(
       new Request("http://localhost/api/settlements/settle-1/payments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: "u1", isPaid: true, reference: "안녕" }),
+        body: JSON.stringify({ userId: "u1", isPaid: true, reference: "Bad\u0000Ref" }),
       }),
       { params: Promise.resolve({ id: "settle-1" }) },
     );
@@ -109,7 +109,7 @@ describe("POST /api/settlements/:id/payments", () => {
       new Request("http://localhost/api/settlements/settle-1/payments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: "u1", isPaid: true }),
+        body: JSON.stringify({ userId: "u1", isPaid: true, reference: "\uCE74\uCE74\uC624\uBC45\uD06C \uC1A1\uAE08" }),
       }),
       { params: Promise.resolve({ id: "settle-1" }) },
     );
@@ -189,6 +189,7 @@ describe("POST /api/settlements/:id/payments", () => {
           userId: "u1",
           settlementId: "settle-1",
           amountCents: 500,
+          reference: "\uCE74\uCE74\uC624\uBC45\uD06C \uC1A1\uAE08",
         }),
       }),
     );
@@ -204,4 +205,3 @@ describe("POST /api/settlements/:id/payments", () => {
     );
   });
 });
-

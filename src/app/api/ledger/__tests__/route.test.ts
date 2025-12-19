@@ -22,14 +22,14 @@ const requireAdminMock = vi.mocked(requireAdmin);
 const prismaMock = vi.mocked(prisma, { deep: true });
 
 describe("POST /api/ledger", () => {
-  it("rejects non-ASCII descriptions", async () => {
+  it("rejects control characters in descriptions", async () => {
     requireAdminMock.mockResolvedValue({ user: { id: "admin-1", role: "ADMIN", isActive: true } } as never);
 
     const response = await createLedgerEntry(
       new Request("http://localhost/api/ledger", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ description: "안녕", amountCents: 100, category: "ADJUSTMENT" }),
+        body: JSON.stringify({ description: "Bad\u0000Text", amountCents: 100, category: "ADJUSTMENT" }),
       }),
     );
 
@@ -62,7 +62,7 @@ describe("POST /api/ledger", () => {
     const ledgerCreate = vi.fn().mockResolvedValue({
       id: "le-1",
       timestamp: new Date("2025-01-01T00:00:00.000Z"),
-      description: "Donation",
+      description: "\uAE30\uBD80",
       amountCents: 5000,
       category: "RECEIPT",
       balanceAfterCents: null,
@@ -80,7 +80,7 @@ describe("POST /api/ledger", () => {
       new Request("http://localhost/api/ledger", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ description: "Donation", amountCents: 5000, category: "RECEIPT" }),
+        body: JSON.stringify({ description: "\uAE30\uBD80", amountCents: 5000, category: "RECEIPT" }),
       }),
     );
 
@@ -123,4 +123,3 @@ describe("GET /api/ledger", () => {
     });
   });
 });
-

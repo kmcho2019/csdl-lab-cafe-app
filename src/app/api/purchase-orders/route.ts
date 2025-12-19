@@ -2,6 +2,7 @@ import { LedgerCategory, PurchaseOrderStatus, StockMovementType } from "@prisma/
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { hasControlCharacters } from "@/lib/text";
 import { requireAdmin } from "@/server/auth/guards";
 import { authErrorToResponse } from "@/server/auth/http";
 import { prisma } from "@/server/db/client";
@@ -23,18 +24,18 @@ const createPurchaseOrderSchema = z.object({
   receiptPath: z
     .string()
     .max(500)
-    .refine((value) => /^[\x20-\x7E]*$/.test(value), { message: "Receipt path must be ASCII." })
+    .refine((value) => !hasControlCharacters(value), { message: "Receipt path must not include control characters." })
     .optional(),
   comment: z
     .string()
     .max(200)
-    .refine((value) => /^[\x20-\x7E]*$/.test(value), { message: "Comment must be ASCII." })
+    .refine((value) => !hasControlCharacters(value), { message: "Comment must not include control characters." })
     .optional(),
   miscCostCents: z.coerce.number().int().min(0).default(0),
   miscComment: z
     .string()
     .max(200)
-    .refine((value) => /^[\x20-\x7E]*$/.test(value), { message: "Misc comment must be ASCII." })
+    .refine((value) => !hasControlCharacters(value), { message: "Misc comment must not include control characters." })
     .optional(),
   lines: z.array(restockLineSchema).min(1).max(50),
 });
@@ -272,4 +273,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

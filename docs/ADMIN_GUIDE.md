@@ -128,7 +128,7 @@ Rules:
 - **Members** can only reverse their own transactions.
 - **Admins** can reverse transactions for any user (use the draft settlement **Corrections** panel).
 - Reversals are only allowed while the transaction is **unbilled** (`settlementId = NULL`). Once bills are finalized (**BILLED**), included transactions cannot be changed.
-- An optional ASCII note (max 200 chars) can be added for audit context.
+- An optional note (max 200 chars, Unicode ok; control characters blocked) can be added for audit context.
 
 What happens on reversal:
 - `Consumption.reversedAt` is set (so exports/settlements ignore it).
@@ -155,7 +155,7 @@ From **People** (`/app/users`), click **Report** on a member to view:
 
 - `/app/ledger` includes:
   - An **Account balance** dashboard (sparkline over time + current balance).
-  - An **Adjust balance** form for opening balances, donations, and manual corrections (ASCII description, 200 chars).
+  - An **Adjust balance** form for opening balances, donations, and manual corrections (Unicode description, max 200 chars; control characters blocked).
   - A table of recent entries.
 - Restocks and write-offs add ledger entries when cost tracking is enabled.
 - Settlements credit the ledger only when the settlement is fully **FINALIZED** (after all members are marked paid).

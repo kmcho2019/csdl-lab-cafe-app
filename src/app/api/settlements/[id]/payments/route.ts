@@ -2,6 +2,7 @@ import { SettlementStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { hasControlCharacters } from "@/lib/text";
 import { requireAdmin } from "@/server/auth/guards";
 import { authErrorToResponse } from "@/server/auth/http";
 import { prisma } from "@/server/db/client";
@@ -26,7 +27,7 @@ const paymentToggleSchema = z.object({
   reference: z
     .string()
     .max(200)
-    .refine((value) => /^[\x20-\x7E]*$/.test(value), { message: "Reference must be ASCII." })
+    .refine((value) => !hasControlCharacters(value), { message: "Reference must not include control characters." })
     .optional(),
 });
 

@@ -21,7 +21,7 @@ const requireAdminMock = vi.mocked(requireAdmin);
 const prismaMock = vi.mocked(prisma, { deep: true });
 
 describe("POST /api/purchase-orders", () => {
-  it("rejects non-ASCII comments", async () => {
+  it("rejects control characters in comments", async () => {
     requireAdminMock.mockResolvedValue({ user: { id: "admin-1", role: "ADMIN", isActive: true } } as never);
 
     const response = await createPurchaseOrder(
@@ -30,7 +30,7 @@ describe("POST /api/purchase-orders", () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           vendorName: "Test",
-          comment: "안녕",
+          comment: "Bad\u0000Text",
           lines: [{ itemId: "item-1", quantity: 1, unitCostCents: 100 }],
         }),
       }),
@@ -92,10 +92,10 @@ describe("POST /api/purchase-orders", () => {
       id: "po-1",
       vendorName: "Coupang",
       purchaseChannel: "online",
-      receiptPath: "s3://bucket/receipt.pdf",
-      comment: "bulk snacks",
+      receiptPath: "s3://bucket/\uC601\uC218\uC99D 2025-01-01.pdf",
+      comment: "\uB300\uB7C9 \uAD6C\uB9E4",
       miscCostCents: 200,
-      miscComment: "shipping",
+      miscComment: "\uBC30\uC1A1",
       status: "RECEIVED",
       orderedAt: new Date("2025-01-01T00:00:00.000Z"),
       receivedAt: new Date("2025-01-01T00:00:00.000Z"),
@@ -129,10 +129,10 @@ describe("POST /api/purchase-orders", () => {
         body: JSON.stringify({
           vendorName: "Coupang",
           purchaseChannel: "online",
-          receiptPath: "s3://bucket/receipt.pdf",
-          comment: "bulk snacks",
+          receiptPath: "s3://bucket/\uC601\uC218\uC99D 2025-01-01.pdf",
+          comment: "\uB300\uB7C9 \uAD6C\uB9E4",
           miscCostCents: 200,
-          miscComment: "shipping",
+          miscComment: "\uBC30\uC1A1",
           lines: [
             { itemId: "item-1", quantity: 2, unitCostCents: 100 },
             { itemId: "item-2", quantity: 1, unitCostCents: 300 },
@@ -186,4 +186,3 @@ describe("POST /api/purchase-orders", () => {
     );
   });
 });
-
